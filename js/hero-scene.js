@@ -7,11 +7,72 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // Example: const MODEL_URL = 'assets/my-character.glb';
 const MODEL_URL = null; // null => use the built-in placeholder shape
 
+// Labels that orbit the central object, like little satellites —
+// edit this list to match whatever you want floating around.
+// Each gets its own orbit radius/speed/tilt so they don't move in lockstep.
+const ORBIT_LABELS = [
+  { text: 'C++',      radius: 3.1, speed: 0.34, phase: 0.0, tiltDeg: 8,  yOff: 0.4  },
+  { text: 'C#',        radius: 3.6, speed: -0.26, phase: 1.4, tiltDeg: -14, yOff: -0.3 },
+  { text: 'UNITY',     radius: 3.9, speed: 0.21, phase: 3.1, tiltDeg: 20, yOff: 0.9  },
+  { text: 'THREE.JS',  radius: 3.4, speed: -0.3,  phase: 4.6, tiltDeg: -6,  yOff: -0.8 },
+  { text: 'GODOT',     radius: 4.2, speed: 0.18, phase: 2.2, tiltDeg: 12, yOff: 0.1  },
+];
+
+function makeLabelTexture(text) {
+  const canvas = document.createElement('canvas');
+  const w = 320, h = 128;
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+
+  const r = 22;
+  const pad = 6;
+  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(pad + r, pad);
+  ctx.arcTo(w - pad, pad, w - pad, h - pad, r);
+  ctx.arcTo(w - pad, h - pad, pad, h - pad, r);
+  ctx.arcTo(pad, h - pad, pad, pad, r);
+  ctx.arcTo(pad, pad, w - pad, pad, r);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(10,10,10,0.55)';
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.font = '700 44px "JetBrains Mono", Consolas, monospace';
+  ctx.fillStyle = '#F4F4F2';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, w / 2, h / 2 + 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return { texture, aspect: w / h };
+}
+
+function buildOrbitLabels(group) {
+  return ORBIT_LABELS.map((cfg) => {
+    const { texture, aspect } = makeLabelTexture(cfg.text);
+    const material = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthWrite: false,
+      opacity: 0.92,
+    });
+    const sprite = new THREE.Sprite(material);
+    const scale = 0.62;
+    sprite.scale.set(scale * aspect, scale, 1);
+    group.add(sprite);
+    return { sprite, ...cfg, tilt: (cfg.tiltDeg * Math.PI) / 180 };
+  });
+}
+
 export default function initHero(canvas, prefersReducedMotion) {
   const heroSection = document.querySelector('.hero');
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x12141b, 0.028);
+  scene.fog = new THREE.FogExp2(0x0a0a0a, 0.028);
 
   const camera = new THREE.PerspectiveCamera(
     45, heroSection.clientWidth / heroSection.clientHeight, 0.1, 100
@@ -23,20 +84,20 @@ export default function initHero(canvas, prefersReducedMotion) {
   renderer.setSize(heroSection.clientWidth, heroSection.clientHeight);
   renderer.setClearColor(0x000000, 0);
 
-  // Lighting: a warm key + cool rim, matching the amber/blue accents
-  const keyLight = new THREE.DirectionalLight(0xffb454, 2.2);
+  // Lighting: neutral white key + cool gray rim — no hue anywhere.
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
   keyLight.position.set(5, 6, 4);
   scene.add(keyLight);
 
-  const rimLight = new THREE.DirectionalLight(0x4c9eff, 1.4);
+  const rimLight = new THREE.DirectionalLight(0xcfcfcf, 1.4);
   rimLight.position.set(-6, 3, -4);
   scene.add(rimLight);
 
-  const ambient = new THREE.AmbientLight(0x2a2f3b, 1.1);
+  const ambient = new THREE.AmbientLight(0x2a2a2a, 1.1);
   scene.add(ambient);
 
-  // Grid floor, styled to match the panel palette
-  const grid = new THREE.GridHelper(24, 24, 0x2a2f3b, 0x1c2029);
+  // Grid floor
+  const grid = new THREE.GridHelper(24, 24, 0x2e2e2e, 0x181818);
   grid.position.y = -1.4;
   scene.add(grid);
 
@@ -44,15 +105,19 @@ export default function initHero(canvas, prefersReducedMotion) {
   const heroGroup = new THREE.Group();
   scene.add(heroGroup);
 
+  // Orbiting language/tool badges — always face the camera (THREE.Sprite
+  // does this automatically) and drift around the central object.
+  const orbitLabels = buildOrbitLabels(heroGroup);
+
   function buildPlaceholder() {
     // A stand-in "game asset": a faceted low-poly icosahedron core
-    // with an orbiting wireframe shell, referencing the axis colors.
+    // with a wireframe shell, both rendered in grayscale.
     const core = new THREE.Mesh(
       new THREE.IcosahedronGeometry(1.35, 1),
       new THREE.MeshStandardMaterial({
-        color: 0x1c2029,
-        metalness: 0.35,
-        roughness: 0.35,
+        color: 0x1a1a1a,
+        metalness: 0.3,
+        roughness: 0.4,
         flatShading: true,
       })
     );
@@ -61,24 +126,15 @@ export default function initHero(canvas, prefersReducedMotion) {
     const shell = new THREE.Mesh(
       new THREE.IcosahedronGeometry(1.85, 1),
       new THREE.MeshBasicMaterial({
-        color: 0x4c9eff,
+        color: 0xffffff,
         wireframe: true,
         transparent: true,
-        opacity: 0.35,
+        opacity: 0.25,
       })
     );
     heroGroup.add(shell);
 
-    // three small axis-colored markers orbiting the shape
-    const markerGeo = new THREE.SphereGeometry(0.09, 16, 16);
-    const colors = [0xff5c6c, 0x57d687, 0x4c9eff];
-    const markers = colors.map((c) => {
-      const m = new THREE.Mesh(markerGeo, new THREE.MeshBasicMaterial({ color: c }));
-      heroGroup.add(m);
-      return m;
-    });
-
-    return { core, shell, markers };
+    return { core, shell };
   }
 
   let placeholderParts = null;
@@ -133,6 +189,7 @@ export default function initHero(canvas, prefersReducedMotion) {
   let frames = 0, lastFpsTime = performance.now();
 
   const clock = new THREE.Clock();
+  const labelSpeedMul = prefersReducedMotion ? 0 : 1;
 
   function animate() {
     requestAnimationFrame(animate);
@@ -142,11 +199,16 @@ export default function initHero(canvas, prefersReducedMotion) {
       placeholderParts.core.rotation.y = t * 0.25;
       placeholderParts.shell.rotation.y = -t * 0.15;
       placeholderParts.shell.rotation.x = t * 0.08;
-      placeholderParts.markers.forEach((m, i) => {
-        const angle = t * 0.6 + (i * Math.PI * 2) / 3;
-        m.position.set(Math.cos(angle) * 2.1, Math.sin(t * 0.8 + i) * 0.4, Math.sin(angle) * 2.1);
-      });
     }
+
+    orbitLabels.forEach((o) => {
+      const angle = t * o.speed * labelSpeedMul + o.phase;
+      const x = Math.cos(angle) * o.radius;
+      const z = Math.sin(angle) * o.radius;
+      // Tilt the orbit plane slightly so labels don't all sit on one ring
+      const y = o.yOff + Math.sin(angle) * Math.sin(o.tilt) * 0.6;
+      o.sprite.position.set(x, y, z);
+    });
 
     controls.update();
     renderer.render(scene, camera);
