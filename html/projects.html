@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projects — Jordan Voss</title>
+<link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+
+<header>
+  <nav class="wrap">
+    <div class="logo">
+      <span class="dot-cluster"><span></span><span></span><span></span></span>
+      JORDAN VOSS
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="projects.html" aria-current="page">Projects</a></li>
+      <li><a href="resume.html">Resume</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <a class="btn btn-primary" href="contact.html">Get in touch</a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <div class="wrap">
+    <div class="eyebrow">Scene Assets — 05 loaded</div>
+    <h1>Selected work</h1>
+    <p>One playable build, plus a few in-progress slots — swap in your own project shots, links, and copy as you ship more.</p>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <div class="project-grid">
+
+      <!-- Featured, playable project: the uploaded Fishing Tycoon game -->
+      <div class="project-card project-card--featured reveal">
+        <div class="project-thumb" data-scene="SCENE_00"
+             style="background: linear-gradient(135deg, #0d2b3d, #2196f333); position:relative;">
+          <span class="playable-badge">Playable</span>
+          <div style="font-size:3rem;">🎣</div>
+        </div>
+        <div class="project-body">
+          <h3>Fishing Tycoon</h3>
+          <p>A 3D browser tycoon game built with three.js. Pilot a boat across open water, cast into timed fishing zones, sell your catch at the dock, and clear contract quotas to progress. Includes a full upgrade tree — inventory capacity, cast speed, boat engine, and research — plus a win state once every contract is cleared.</p>
+          <div class="project-links">
+            <a href="../games/fishing-tycoon/index.html">Play now →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-thumb" data-scene="SCENE_01"
+             style="background: linear-gradient(135deg, #2A1620, #FF5C6C33);"></div>
+        <div class="project-body">
+          <h3>PLACEHOLDER — Project Title</h3>
+          <p>One or two lines on the game, your role, and the standout technical or design problem you solved.</p>
+          <div class="project-links">
+            <a href="#">Play demo →</a>
+            <a href="#">Source →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-thumb" data-scene="SCENE_02"
+             style="background: linear-gradient(135deg, #142A1D, #57D68733);"></div>
+        <div class="project-body">
+          <h3>PLACEHOLDER — Project Title</h3>
+          <p>One or two lines on the game, your role, and the standout technical or design problem you solved.</p>
+          <div class="project-links">
+            <a href="#">Play demo →</a>
+            <a href="#">Source →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-thumb" data-scene="SCENE_03"
+             style="background: linear-gradient(135deg, #101E2E, #4C9EFF33);"></div>
+        <div class="project-body">
+          <h3>PLACEHOLDER — Project Title</h3>
+          <p>One or two lines on the game, your role, and the standout technical or design problem you solved.</p>
+          <div class="project-links">
+            <a href="#">Play demo →</a>
+            <a href="#">Source →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  © <span id="year"></span> Jordan Voss — built with three.js
+</footer>
+
+<script type="module" src="../js/script.js"></script>
+</body>
+</html>

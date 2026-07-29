@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Fishing Tycoon</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <a href="../../html/projects.html" id="backLink">← Portfolio</a>
+
+    <div id="ui">
+        <!-- NEW: Level/Quota Display -->
+        <div class="ui-box quota-box">
+            📋 Contract <span id="gameLevel">1</span>: <span id="quotaProgress">0</span> / <span
+                id="quotaGoal">500</span> Fish
+        </div>
+        <div class="ui-box">
+            💰 Money: <span id="money">0</span>
+        </div>
+        <div class="ui-box">
+            🐟 Fish: <span id="fishCount">0</span>
+        </div>
+        <div class="ui-box">
+            📍 Fishing Zone: <span id="zoneStatus">NO</span>
+        </div>
+
+        <div class="ui-hint">
+            Move: WASD / Arrows <br>
+            Action: F (Fish) | E (Sell) | Q (Quota)
+        </div>
+    </div>
+
+    <div id="actionUI">
+        <button id="fishBtn" class="hidden">🎣 Cast Line</button>
+        <button id="sellBtn" class="hidden">💵 Sell Catch</button>
+        <button id="quotaBtn" class="hidden">🏆 Complete Contract</button>
+    </div>
+
+    <div id="upgradePanel">
+        <h3>⚓ Upgrades</h3>
+
+        <p>Money: <span id="moneyUI" style="color:#ffd54f">$0</span></p>
+
+        <button id="invBtn">
+            <span class="upgrade-icon">🎒</span> Inventory (+100)<br>
+            <small>Lvl: <span id="invLevel">1</span> | Cost: $<span id="invCost">100</span></small>
+            <span class="max-label hidden">MAX</span>
+        </button>
+
+        <button id="speedBtn">
+            <span class="upgrade-icon">⚡</span> Fishing Speed<br>
+            <small>Lvl: <span id="speedLevel">1</span> | Cost: $<span id="speedCost">200</span></small>
+            <span class="max-label hidden">MAX</span>
+        </button>
+
+        <button id="boatBtn">
+            <span class="upgrade-icon">🚤</span> Boat Engine<br>
+            <small>Lvl: <span id="boatLevel">1</span> | Cost: $<span id="boatCost">300</span></small>
+            <span class="max-label hidden">MAX</span>
+        </button>
+
+        <button id="researchBtn">
+            <span class="upgrade-icon">🔬</span> Fish Research<br>
+            <small>Lvl: <span id="researchLevel">1</span> | Cost: $<span id="researchCost">500</span></small>
+            <span class="max-label hidden">MAX</span>
+        </button>
+
+    </div>
+
+    <!-- NEW: Win Screen -->
+    <div id="winScreen" class="hidden">
+        <h1>🏆 YOU WIN! 🏆</h1>
+        <p>You have become the ultimate Fishing Tycoon.</p>
+        <button id="restartBtn">Play Again</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
