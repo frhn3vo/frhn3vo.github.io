@@ -11,21 +11,28 @@ const MODEL_URL = null; // null => use the built-in placeholder shape
 // edit this list to match whatever you want floating around.
 // Each gets its own orbit radius/speed/tilt so they don't move in lockstep.
 const ORBIT_LABELS = [
-  { text: 'C++',      radius: 3.1, speed: 0.34, phase: 0.0, tiltDeg: 8,  yOff: 0.4  },
-  { text: 'C#',        radius: 3.6, speed: -0.26, phase: 1.4, tiltDeg: -14, yOff: -0.3 },
-  { text: 'UNITY',     radius: 3.9, speed: 0.21, phase: 3.1, tiltDeg: 20, yOff: 0.9  },
-  { text: 'THREE.JS',  radius: 3.4, speed: -0.3,  phase: 4.6, tiltDeg: -6,  yOff: -0.8 },
-  { text: 'GODOT',     radius: 4.2, speed: 0.18, phase: 2.2, tiltDeg: 12, yOff: 0.1  },
+  { text: 'C++',        radius: 3.0, speed: 0.34,  phase: 0.00, tiltDeg: 8,   yOff: 0.4  },
+  { text: 'C#',         radius: 3.9, speed: -0.26, phase: 0.52, tiltDeg: -14, yOff: -0.5 },
+  { text: 'C',          radius: 3.3, speed: 0.29,  phase: 1.05, tiltDeg: 16,  yOff: 0.7  },
+  { text: 'UNITY',      radius: 4.2, speed: 0.21,  phase: 1.57, tiltDeg: 20,  yOff: 0.1  },
+  { text: 'GODOT',      radius: 3.6, speed: -0.24, phase: 2.09, tiltDeg: -10, yOff: -0.8 },
+  { text: 'THREE.JS',   radius: 4.5, speed: -0.19, phase: 2.62, tiltDeg: 6,   yOff: 0.5  },
+  { text: 'OPENGL',     radius: 3.1, speed: 0.31,  phase: 3.14, tiltDeg: -18, yOff: -0.2 },
+  { text: 'HTML',       radius: 3.8, speed: 0.23,  phase: 3.67, tiltDeg: 12,  yOff: 0.6  },
+  { text: 'CSS',        radius: 3.4, speed: -0.28, phase: 4.19, tiltDeg: -8,  yOff: -0.4 },
+  { text: 'JAVASCRIPT', radius: 4.3, speed: 0.17,  phase: 4.71, tiltDeg: 22,  yOff: 0.2  },
+  { text: 'NODE-RED',   radius: 3.7, speed: -0.22, phase: 5.24, tiltDeg: -16, yOff: -0.6 },
+  { text: 'ARDUINO',    radius: 3.2, speed: 0.27,  phase: 5.76, tiltDeg: 10,  yOff: 0.3  },
 ];
 
 function makeLabelTexture(text) {
   const canvas = document.createElement('canvas');
-  const w = 320, h = 128;
+  const w = 360, h = 120;
   canvas.width = w;
   canvas.height = h;
   const ctx = canvas.getContext('2d');
 
-  const r = 22;
+  const r = 20;
   const pad = 6;
   ctx.strokeStyle = 'rgba(255,255,255,0.85)';
   ctx.lineWidth = 3;
@@ -40,7 +47,7 @@ function makeLabelTexture(text) {
   ctx.fill();
   ctx.stroke();
 
-  ctx.font = '700 44px "JetBrains Mono", Consolas, monospace';
+  ctx.font = '700 34px "JetBrains Mono", Consolas, monospace';
   ctx.fillStyle = '#F4F4F2';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -61,7 +68,7 @@ function buildOrbitLabels(group) {
       opacity: 0.92,
     });
     const sprite = new THREE.Sprite(material);
-    const scale = 0.62;
+    const scale = 0.4;
     sprite.scale.set(scale * aspect, scale, 1);
     group.add(sprite);
     return { sprite, ...cfg, tilt: (cfg.tiltDeg * Math.PI) / 180 };

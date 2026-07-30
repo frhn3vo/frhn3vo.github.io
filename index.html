@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Jordan Voss — Game Developer</title>
-<link rel="stylesheet" href="css/styles.css" />
-<!-- three.js import map: only needed on this page, since only the
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>me — Game Developer</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- three.js import map: only needed on this page, since only the
      home page loads the hero viewport scene -->
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
     "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
@@ -16,102 +17,111 @@
 }
 </script>
 </head>
+
 <body>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap"
+    rel="stylesheet">
 
-<header>
-  <nav class="wrap">
-    <div class="logo">
-      <span class="dot-cluster"><span></span><span></span><span></span></span>
-      JORDAN VOSS
-    </div>
-    <ul class="nav-links">
-      <li><a href="index.html" aria-current="page">Home</a></li>
-      <li><a href="projects.html">Projects</a></li>
-      <li><a href="resume.html">Resume</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
-    <a class="btn btn-primary" href="contact.html">Get in touch</a>
-    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
-  </nav>
-</header>
-
-<!-- ============== HERO / 3D VIEWPORT ============== -->
-<section class="hero">
-  <canvas id="viewport-canvas"></canvas>
-  <div class="viewport-vignette"></div>
-
-  <div class="hud-corner hud-top-left">
-    SCENE: portfolio_hero.glb<br>
-    RENDERER: WebGL — three.js
-  </div>
-  <div class="hud-corner hud-top-right">
-    <div>VIEWPORT / PERSPECTIVE</div>
-    <div class="stat-line"><span class="k">FPS</span><span class="v" id="fps-readout">60</span></div>
-  </div>
-
-  <div class="axis-gizmo" aria-hidden="true">
-    <svg viewBox="0 0 84 84">
-      <line x1="42" y1="42" x2="42" y2="10" stroke="#FFFFFF" stroke-width="2"/>
-      <circle cx="42" cy="8" r="7" fill="#FFFFFF"/>
-      <text x="42" y="11" fill="#0A0A0A" text-anchor="middle">Y</text>
-
-      <line x1="42" y1="42" x2="72" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.65"/>
-      <circle cx="75" cy="60" r="7" fill="#FFFFFF" opacity="0.65"/>
-      <text x="75" y="63" fill="#0A0A0A" text-anchor="middle">X</text>
-
-      <line x1="42" y1="42" x2="14" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.35"/>
-      <circle cx="11" cy="60" r="7" fill="#FFFFFF" opacity="0.35"/>
-      <text x="11" y="63" fill="#0A0A0A" text-anchor="middle">Z</text>
-    </svg>
-  </div>
-
-  <div class="wrap hero-content">
-    <div class="eyebrow">Game Developer &amp; Technical Artist</div>
-    <h1>Building worlds<br>that <span class="accent">respond</span> to you.</h1>
-    <p class="hero-sub">
-      <!-- PLACEHOLDER tagline — replace with your own -->
-      I design and ship gameplay systems, shaders, and real-time 3D experiences —
-      from prototype to polished build. Currently open to new projects.
-    </p>
-    <div class="hero-ctas">
-      <a class="btn btn-primary" href="projects.html">View projects</a>
-      <a class="btn" href="resume.html">See resume</a>
-    </div>
-    <div class="drag-hint">
-      <span>◎</span> drag to orbit the scene
-    </div>
-  </div>
-</section>
-
-<!-- ============== FEATURED TEASER ============== -->
-<section id="featured">
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="eyebrow">Latest Build</div>
-      <h2>Fishing Tycoon</h2>
-      <p>A browser-based 3D tycoon game built with three.js — sail out, cast a line, sell your catch, and upgrade your boat to clear bigger contracts.</p>
-    </div>
-
-    <div class="panel reveal" style="display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
-      <div>
-        <h3 style="font-family:var(--font-display); font-size:1.2rem; text-transform:none; letter-spacing:normal; color:var(--text); margin-bottom:8px;">Playable right now</h3>
-        <p style="color:var(--text-muted); max-width:52ch;">Built entirely with three.js: boat movement, timed fishing zones, an economy loop, and an upgrade tree.</p>
+  <header>
+    <nav class="wrap">
+      <div class="logo">
+        <span class="dot-cluster"><span></span><span></span><span></span></span>
+        JORDAN VOSS
       </div>
-      <div style="display:flex; gap:12px; flex-shrink:0;">
-        <a class="btn btn-primary" href="games/fishing-tycoon/index.html">🎣 Play now</a>
-        <a class="btn" href="projects.html">All projects →</a>
+      <ul class="nav-links">
+        <li><a href="index.html" aria-current="page">Home</a></li>
+        <li><a href="projects.html">Projects</a></li>
+        <li><a href="resume.html">Resume</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <a class="btn btn-primary" href="contact.html">Get in touch</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </nav>
+  </header>
+
+  <!-- ============== HERO / 3D VIEWPORT ============== -->
+  <section class="hero">
+    <canvas id="viewport-canvas"></canvas>
+    <div class="viewport-vignette"></div>
+
+    <div class="hud-corner hud-top-left">
+      SCENE: portfolio_hero.glb<br>
+      RENDERER: WebGL — three.js
+    </div>
+    <div class="hud-corner hud-top-right">
+      <div>VIEWPORT / PERSPECTIVE</div>
+      <div class="stat-line"><span class="k">FPS</span><span class="v" id="fps-readout">60</span></div>
+    </div>
+
+    <div class="axis-gizmo" aria-hidden="true">
+      <svg viewBox="0 0 84 84">
+        <line x1="42" y1="42" x2="42" y2="10" stroke="#FFFFFF" stroke-width="2" />
+        <circle cx="42" cy="8" r="7" fill="#FFFFFF" />
+        <text x="42" y="11" fill="#0A0A0A" text-anchor="middle">Y</text>
+
+        <line x1="42" y1="42" x2="72" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.65" />
+        <circle cx="75" cy="60" r="7" fill="#FFFFFF" opacity="0.65" />
+        <text x="75" y="63" fill="#0A0A0A" text-anchor="middle">X</text>
+
+        <line x1="42" y1="42" x2="14" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.35" />
+        <circle cx="11" cy="60" r="7" fill="#FFFFFF" opacity="0.35" />
+        <text x="11" y="63" fill="#0A0A0A" text-anchor="middle">Z</text>
+      </svg>
+    </div>
+
+    <div class="wrap hero-content">
+      <div class="eyebrow">Game Developer &amp; Technical Artist</div>
+      <h1>Building worlds<br>that <span class="accent">respond</span> to you.</h1>
+      <p class="hero-sub">
+        <!-- PLACEHOLDER tagline — replace with your own -->
+        I design and ship gameplay systems, shaders, and real-time 3D experiences —
+        from prototype to polished build. Currently open to new projects.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="projects.html">View projects</a>
+        <a class="btn" href="resume.html">See resume</a>
+      </div>
+      <div class="drag-hint">
+        <span>◎</span> drag to orbit the scene
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<footer>
-  © <span id="year"></span> Jordan Voss — built with three.js
-</footer>
+  <!-- ============== FEATURED TEASER ============== -->
+  <section id="featured">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="eyebrow">Latest Build</div>
+        <h2>Fishing Tycoon</h2>
+        <p>A browser-based 3D tycoon game built with three.js — sail out, cast a line, sell your catch, and upgrade your
+          boat to clear bigger contracts.</p>
+      </div>
 
-<script type="module" src="js/script.js"></script>
+      <div class="panel reveal"
+        style="display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
+        <div>
+          <h3
+            style="font-family:var(--font-display); font-size:1.2rem; text-transform:none; letter-spacing:normal; color:var(--text); margin-bottom:8px;">
+            Playable right now</h3>
+          <p style="color:var(--text-muted); max-width:52ch;">Built entirely with three.js: boat movement, timed fishing
+            zones, an economy loop, and an upgrade tree.</p>
+        </div>
+        <div style="display:flex; gap:12px; flex-shrink:0;">
+          <a class="btn btn-primary" href="games/fishing-tycoon/index.html">Play now</a>
+          <a class="btn" href="projects.html">All projects →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © <span id="year"></span> Jordan Voss — built with three.js
+  </footer>
+
+  <script type="module" src="js/script.js"></script>
 </body>
+
 </html>
