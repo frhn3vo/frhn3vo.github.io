@@ -1,11 +1,12 @@
 // Project detail popup: click a project card to see a looping set of
-// (placeholder) screenshots and its description. Closes on any click
-// inside the overlay, on the × button, or on Escape.
+// (placeholder) screenshots and its description. Closes only via the ×
+// button or Escape — clicking inside the popup no longer closes it.
 //
-// The image strip auto-scrolls by default. Pressing the ‹ / › buttons
-// pauses it, centers and "focuses" the current image (neighbors shrink
-// back slightly), and lets you step through images one at a time. If
-// left alone for a few seconds, it resumes auto-scrolling on its own.
+// The image strip auto-scrolls by default. Pressing the ‹ / › buttons,
+// or clicking an image directly, pauses it and centers/"focuses" that
+// image (neighbors shrink back slightly). ‹ / › then step one at a time;
+// clicking a different image jumps straight to it. If left alone for a
+// few seconds, it resumes auto-scrolling on its own.
 //
 // Swapping in real screenshots: replace makePlaceholderImage() below
 // with a lookup that returns real file paths for each project instead
@@ -102,12 +103,13 @@ document.addEventListener('DOMContentLoaded', () => {
     currentIndex = index;
   }
 
-  function enterManualMode() {
-    if (manual) return;
+  // Freezes the track exactly where the auto-scroll animation currently
+  // has it (no visible jump), and switches on manual control. Returns the
+  // frozen X offset, or undefined if already in manual mode.
+  function freezeTrack() {
+    if (manual) return undefined;
     manual = true;
 
-    // Freeze the track exactly where the auto-scroll animation currently
-    // has it, so switching to manual control causes no visible jump.
     const tx = getCurrentTranslateX(track);
     track.style.animation = 'none';
     track.style.transition = 'none';
@@ -116,10 +118,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Force a reflow so the transition below re-enables cleanly.
     void track.offsetHeight;
     track.style.transition = 'transform .4s ease';
+    return tx;
+  }
 
-    // Figure out which image is currently nearest the viewport center,
-    // so the first press feels like it's continuing from where it was,
-    // not resetting to image 1.
+  // Used by the ‹ / › buttons: freeze the track, then figure out which
+  // image is currently nearest the viewport center so the first press
+  // feels like it's continuing from where it was, not resetting to image 1.
+  function enterManualModeNearest() {
+    const tx = freezeTrack();
+    if (tx === undefined) return;
     const viewportCenter = (viewport?.clientWidth || 0) / 2;
     let nearest = 0;
     let nearestDist = Infinity;
@@ -151,11 +158,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function step(direction) {
     if (!manual) {
-      enterManualMode();
+      enterManualModeNearest();
     } else {
       currentIndex = (currentIndex + direction + IMAGE_COUNT) % IMAGE_COUNT;
     }
     centerOn(currentIndex);
+    scheduleIdleResume();
+  }
+
+  // Used by clicking an image directly: we already know exactly which
+  // image was clicked, so just freeze (if needed) and center on it.
+  function focusIndex(index) {
+    freezeTrack();
+    centerOn(index);
     scheduleIdleResume();
   }
 
@@ -198,8 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
     card.addEventListener('click', () => openModalFor(card));
   });
 
-  // Click anywhere in the overlay (backdrop or panel) closes it.
-  overlay.addEventListener('click', closeModal);
+  // Closing is now deliberate only — the × button or Escape. Clicking
+  // inside the popup (including the backdrop) no longer closes it, since
+  // that was too easy to trigger by accident.
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     closeModal();
@@ -212,6 +228,17 @@ document.addEventListener('DOMContentLoaded', () => {
   nextBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     step(1);
+  });
+
+  // Clicking an image directly focuses it — same effect as pressing
+  // ‹ / › but jumping straight to the one you clicked.
+  track.addEventListener('click', (e) => {
+    const img = e.target.closest('img');
+    if (!img) return;
+    const all = Array.from(track.children);
+    const rawIndex = all.indexOf(img);
+    if (rawIndex === -1) return;
+    focusIndex(rawIndex % IMAGE_COUNT);
   });
 
   document.addEventListener('keydown', (e) => {

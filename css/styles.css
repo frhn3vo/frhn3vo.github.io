@@ -627,6 +627,7 @@
     object-fit: cover;
     flex-shrink: 0;
     border: 1px solid var(--hairline);
+    cursor: pointer;
   }
   @keyframes modal-marquee{
     from{ transform: translateX(0); }
