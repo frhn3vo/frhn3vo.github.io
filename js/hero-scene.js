@@ -2,124 +2,59 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
+// ============================================================
+// OOP REFACTOR — see the chat for the "why" behind this shape.
+// Three classes, each owning one concern:
+//   HeroObject    — the central placeholder shape (or your .glb)
+//   CameraRig     — camera + OrbitControls + the view-to-view tween
+//   HeroScene     — orchestrator: owns the renderer/scene/lights,
+//                   builds the two classes above, runs the loop
+//
+// Plain functions/constants (easeInOutCubic, CAMERA_PRESETS) stay as
+// plain functions/constants — they don't belong to any single object,
+// so wrapping them in a class would just be ceremony with no benefit.
+// Not everything needs to be a class.
+// ============================================================
+
 // To use your own Blender export: put a .glb file in an /assets
 // folder next to index.html and set MODEL_URL to its path.
 // Example: const MODEL_URL = 'assets/my-character.glb';
 const MODEL_URL = null; // null => use the built-in placeholder shape
 
-// Labels that orbit the central object, like little satellites —
-// edit this list to match whatever you want floating around.
-// Each gets its own orbit radius/speed/tilt so they don't move in lockstep.
-const ORBIT_LABELS = [
-  { text: 'C++',        radius: 3.0, speed: 0.34,  phase: 0.00, tiltDeg: 8,   yOff: 0.4  },
-  { text: 'C#',         radius: 3.9, speed: -0.26, phase: 0.52, tiltDeg: -14, yOff: -0.5 },
-  { text: 'C',          radius: 3.3, speed: 0.29,  phase: 1.05, tiltDeg: 16,  yOff: 0.7  },
-  { text: 'UNITY',      radius: 4.2, speed: 0.21,  phase: 1.57, tiltDeg: 20,  yOff: 0.1  },
-  { text: 'GODOT',      radius: 3.6, speed: -0.24, phase: 2.09, tiltDeg: -10, yOff: -0.8 },
-  { text: 'THREE.JS',   radius: 4.5, speed: -0.19, phase: 2.62, tiltDeg: 6,   yOff: 0.5  },
-  { text: 'OPENGL',     radius: 3.1, speed: 0.31,  phase: 3.14, tiltDeg: -18, yOff: -0.2 },
-  { text: 'HTML',       radius: 3.8, speed: 0.23,  phase: 3.67, tiltDeg: 12,  yOff: 0.6  },
-  { text: 'CSS',        radius: 3.4, speed: -0.28, phase: 4.19, tiltDeg: -8,  yOff: -0.4 },
-  { text: 'JAVASCRIPT', radius: 4.3, speed: 0.17,  phase: 4.71, tiltDeg: 22,  yOff: 0.2  },
-  { text: 'NODE-RED',   radius: 3.7, speed: -0.22, phase: 5.24, tiltDeg: -16, yOff: -0.6 },
-  { text: 'ARDUINO',    radius: 3.2, speed: 0.27,  phase: 5.76, tiltDeg: 10,  yOff: 0.3  },
-];
+// Camera "poses" per view — this is the Tekken-menu part: instead of
+// reloading, the same camera just glides to a different spot and looks
+// at a different point when you switch views. Edit these to taste.
+const CAMERA_PRESETS = {
+  home:     { pos: [4.5, 2.6, 6.5],  target: [0, 0.2, 0], autoRotate: true,  rotateSpeed: 0.6,  interactive: true  },
+  projects: { pos: [1.8, 1.0, 7.6],  target: [0, 0.1, 0], autoRotate: true,  rotateSpeed: 0.18, interactive: false },
+  resume:   { pos: [-3.2, 3.1, 5.4], target: [0, 0.4, 0], autoRotate: true,  rotateSpeed: 0.12, interactive: false },
+  contact:  { pos: [0.2, 4.4, 4.2],  target: [0, 0, 0],   autoRotate: false, rotateSpeed: 0,    interactive: false },
+};
+const TWEEN_MS = 1200;
 
-function makeLabelTexture(text) {
-  const canvas = document.createElement('canvas');
-  const w = 360, h = 120;
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d');
-
-  const r = 20;
-  const pad = 6;
-  ctx.strokeStyle = 'rgba(255,255,255,0.85)';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(pad + r, pad);
-  ctx.arcTo(w - pad, pad, w - pad, h - pad, r);
-  ctx.arcTo(w - pad, h - pad, pad, h - pad, r);
-  ctx.arcTo(pad, h - pad, pad, pad, r);
-  ctx.arcTo(pad, pad, w - pad, pad, r);
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(10,10,10,0.55)';
-  ctx.fill();
-  ctx.stroke();
-
-  ctx.font = '700 34px "JetBrains Mono", Consolas, monospace';
-  ctx.fillStyle = '#F4F4F2';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, w / 2, h / 2 + 2);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  return { texture, aspect: w / h };
+function easeInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-function buildOrbitLabels(group) {
-  return ORBIT_LABELS.map((cfg) => {
-    const { texture, aspect } = makeLabelTexture(cfg.text);
-    const material = new THREE.SpriteMaterial({
-      map: texture,
-      transparent: true,
-      depthWrite: false,
-      opacity: 0.92,
-    });
-    const sprite = new THREE.Sprite(material);
-    const scale = 0.4;
-    sprite.scale.set(scale * aspect, scale, 1);
-    group.add(sprite);
-    return { sprite, ...cfg, tilt: (cfg.tiltDeg * Math.PI) / 180 };
-  });
-}
+// ---------------------------------------------------------------
+// The central object: either your loaded .glb, or (by default, and
+// as a fallback if loading fails) a low-poly placeholder shape.
+// ---------------------------------------------------------------
+class HeroObject {
+  constructor(group, modelUrl) {
+    this.group = group;
+    this.core = null;
+    this.shell = null;
 
-export default function initHero(canvas, prefersReducedMotion) {
-  const heroSection = document.querySelector('.hero');
+    if (modelUrl) {
+      this._loadModel(modelUrl);
+    } else {
+      this._buildPlaceholder();
+    }
+  }
 
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a0a0a, 0.028);
-
-  const camera = new THREE.PerspectiveCamera(
-    45, heroSection.clientWidth / heroSection.clientHeight, 0.1, 100
-  );
-  camera.position.set(4.5, 2.6, 6.5);
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(heroSection.clientWidth, heroSection.clientHeight);
-  renderer.setClearColor(0x000000, 0);
-
-  // Lighting: neutral white key + cool gray rim — no hue anywhere.
-  const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
-  keyLight.position.set(5, 6, 4);
-  scene.add(keyLight);
-
-  const rimLight = new THREE.DirectionalLight(0xcfcfcf, 1.4);
-  rimLight.position.set(-6, 3, -4);
-  scene.add(rimLight);
-
-  const ambient = new THREE.AmbientLight(0x2a2a2a, 1.1);
-  scene.add(ambient);
-
-  // Grid floor
-  const grid = new THREE.GridHelper(24, 24, 0x2e2e2e, 0x181818);
-  grid.position.y = -1.4;
-  scene.add(grid);
-
-  // Group that holds either the loaded model or the placeholder
-  const heroGroup = new THREE.Group();
-  scene.add(heroGroup);
-
-  // Orbiting language/tool badges — always face the camera (THREE.Sprite
-  // does this automatically) and drift around the central object.
-  const orbitLabels = buildOrbitLabels(heroGroup);
-
-  function buildPlaceholder() {
-    // A stand-in "game asset": a faceted low-poly icosahedron core
-    // with a wireframe shell, both rendered in grayscale.
-    const core = new THREE.Mesh(
+  _buildPlaceholder() {
+    this.core = new THREE.Mesh(
       new THREE.IcosahedronGeometry(1.35, 1),
       new THREE.MeshStandardMaterial({
         color: 0x1a1a1a,
@@ -128,9 +63,9 @@ export default function initHero(canvas, prefersReducedMotion) {
         flatShading: true,
       })
     );
-    heroGroup.add(core);
+    this.group.add(this.core);
 
-    const shell = new THREE.Mesh(
+    this.shell = new THREE.Mesh(
       new THREE.IcosahedronGeometry(1.85, 1),
       new THREE.MeshBasicMaterial({
         color: 0xffffff,
@@ -139,17 +74,13 @@ export default function initHero(canvas, prefersReducedMotion) {
         opacity: 0.25,
       })
     );
-    heroGroup.add(shell);
-
-    return { core, shell };
+    this.group.add(this.shell);
   }
 
-  let placeholderParts = null;
-
-  if (MODEL_URL) {
+  _loadModel(url) {
     const loader = new GLTFLoader();
     loader.load(
-      MODEL_URL,
+      url,
       (gltf) => {
         const model = gltf.scene;
         const box = new THREE.Box3().setFromObject(model);
@@ -159,74 +90,168 @@ export default function initHero(canvas, prefersReducedMotion) {
         model.scale.setScalar(scale);
         const center = box.getCenter(new THREE.Vector3()).multiplyScalar(scale);
         model.position.sub(center);
-        heroGroup.add(model);
+        this.group.add(model);
       },
       undefined,
       (err) => {
         console.warn('Could not load MODEL_URL, falling back to placeholder.', err);
-        placeholderParts = buildPlaceholder();
+        this._buildPlaceholder();
       }
     );
-  } else {
-    placeholderParts = buildPlaceholder();
   }
 
-  const controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.06;
-  controls.autoRotate = !prefersReducedMotion;
-  controls.autoRotateSpeed = 0.6;
-  controls.enableZoom = false;
-  controls.enablePan = false;
-  controls.minPolarAngle = Math.PI / 3.2;
-  controls.maxPolarAngle = Math.PI / 1.9;
-  controls.target.set(0, 0.2, 0);
-
-  function onResize() {
-    const w = heroSection.clientWidth;
-    const h = heroSection.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
+  update(t) {
+    if (!this.core) return; // either still loading, or a real model (which doesn't self-rotate)
+    this.core.rotation.y = t * 0.25;
+    this.shell.rotation.y = -t * 0.15;
+    this.shell.rotation.x = t * 0.08;
   }
-  window.addEventListener('resize', onResize);
+}
 
-  // FPS readout for HUD flavor
-  const fpsEl = document.getElementById('fps-readout');
-  let frames = 0, lastFpsTime = performance.now();
+// ---------------------------------------------------------------
+// Camera + OrbitControls + the tween that glides between views.
+// ---------------------------------------------------------------
+class CameraRig {
+  constructor(camera, domElement, prefersReducedMotion) {
+    this.camera = camera;
+    this.prefersReducedMotion = prefersReducedMotion;
+    this.tween = null; // { startPos, endPos, startTarget, endTarget, startTime }
 
-  const clock = new THREE.Clock();
-  const labelSpeedMul = prefersReducedMotion ? 0 : 1;
+    this.controls = new OrbitControls(camera, domElement);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.06;
+    this.controls.autoRotate = !prefersReducedMotion;
+    this.controls.autoRotateSpeed = CAMERA_PRESETS.home.rotateSpeed;
+    this.controls.enableZoom = false;
+    this.controls.enablePan = false;
+    this.controls.enableRotate = CAMERA_PRESETS.home.interactive;
+    this.controls.minPolarAngle = Math.PI / 3.2;
+    this.controls.maxPolarAngle = Math.PI / 1.9;
+    this.controls.target.set(...CAMERA_PRESETS.home.target);
 
-  function animate() {
-    requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
+    this.camera.position.set(...CAMERA_PRESETS.home.pos);
+  }
 
-    if (placeholderParts) {
-      placeholderParts.core.rotation.y = t * 0.25;
-      placeholderParts.shell.rotation.y = -t * 0.15;
-      placeholderParts.shell.rotation.x = t * 0.08;
+  // Starts gliding to the named view's preset and returns that preset,
+  // in case the caller (HeroScene) ever wants to react to it too.
+  setView(viewName) {
+    const preset = CAMERA_PRESETS[viewName] || CAMERA_PRESETS.home;
+    this.tween = {
+      startPos: this.camera.position.clone(),
+      endPos: new THREE.Vector3(...preset.pos),
+      startTarget: this.controls.target.clone(),
+      endTarget: new THREE.Vector3(...preset.target),
+      startTime: performance.now(),
+    };
+    this.controls.autoRotate = !this.prefersReducedMotion && preset.autoRotate;
+    this.controls.autoRotateSpeed = preset.rotateSpeed;
+    this.controls.enableRotate = preset.interactive;
+    return preset;
+  }
+
+  tick() {
+    if (this.tween) {
+      const elapsed = performance.now() - this.tween.startTime;
+      const raw = Math.min(elapsed / TWEEN_MS, 1);
+      const eased = this.prefersReducedMotion ? 1 : easeInOutCubic(raw);
+      this.camera.position.lerpVectors(this.tween.startPos, this.tween.endPos, eased);
+      this.controls.target.lerpVectors(this.tween.startTarget, this.tween.endTarget, eased);
+      if (raw >= 1) this.tween = null;
     }
+    this.controls.update();
+  }
+}
 
-    orbitLabels.forEach((o) => {
-      const angle = t * o.speed * labelSpeedMul + o.phase;
-      const x = Math.cos(angle) * o.radius;
-      const z = Math.sin(angle) * o.radius;
-      // Tilt the orbit plane slightly so labels don't all sit on one ring
-      const y = o.yOff + Math.sin(angle) * Math.sin(o.tilt) * 0.6;
-      o.sprite.position.set(x, y, z);
-    });
+// ---------------------------------------------------------------
+// Orchestrator: owns the renderer/scene/lights, builds the three
+// classes above, and runs the render loop.
+// ---------------------------------------------------------------
+class HeroScene {
+  constructor(canvas, prefersReducedMotion) {
+    this.prefersReducedMotion = prefersReducedMotion;
+    this.clock = new THREE.Clock();
+    this.frames = 0;
+    this.lastFpsTime = performance.now();
+    this.fpsEl = document.getElementById('fps-readout');
 
-    controls.update();
-    renderer.render(scene, camera);
+    this.scene = new THREE.Scene();
+    this.scene.fog = new THREE.FogExp2(0x0a0a0a, 0.028);
 
-    frames++;
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setClearColor(0x000000, 0);
+
+    this._setupLights();
+
+    this.heroGroup = new THREE.Group();
+    this.scene.add(this.heroGroup);
+
+    this.heroObject = new HeroObject(this.heroGroup, MODEL_URL);
+    this.cameraRig = new CameraRig(this.camera, canvas, prefersReducedMotion);
+
+    window.addEventListener('resize', () => this._onResize());
+
+    requestAnimationFrame(this._animate);
+  }
+
+  _setupLights() {
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    keyLight.position.set(5, 6, 4);
+    this.scene.add(keyLight);
+
+    const rimLight = new THREE.DirectionalLight(0xcfcfcf, 1.4);
+    rimLight.position.set(-6, 3, -4);
+    this.scene.add(rimLight);
+
+    const ambient = new THREE.AmbientLight(0x2a2a2a, 1.1);
+    this.scene.add(ambient);
+
+    const grid = new THREE.GridHelper(24, 24, 0x2e2e2e, 0x181818);
+    grid.position.y = -1.4;
+    this.scene.add(grid);
+  }
+
+  _onResize() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(w, h);
+  }
+
+  setView(viewName) {
+    this.cameraRig.setView(viewName);
+  }
+
+  // Arrow function class field — locks `this` to the instance
+  // permanently, which matters because requestAnimationFrame calls
+  // this function on its own, detached from the object (the exact
+  // gotcha from the OOP explanation earlier in chat).
+  _animate = () => {
+    requestAnimationFrame(this._animate);
+    const t = this.clock.getElapsedTime();
+
+    this.heroObject.update(t);
+    this.cameraRig.tick();
+
+    this.renderer.render(this.scene, this.camera);
+
+    this.frames++;
     const now = performance.now();
-    if (now - lastFpsTime >= 1000) {
-      fpsEl.textContent = Math.round((frames * 1000) / (now - lastFpsTime));
-      frames = 0;
-      lastFpsTime = now;
+    if (now - this.lastFpsTime >= 1000) {
+      if (this.fpsEl) this.fpsEl.textContent = Math.round((this.frames * 1000) / (now - this.lastFpsTime));
+      this.frames = 0;
+      this.lastFpsTime = now;
     }
-  }
-  animate();
+  };
+}
+
+// Public API stays identical to the pre-refactor version — spa.js
+// doesn't need to change at all.
+export default function initHero(canvas, prefersReducedMotion) {
+  const heroScene = new HeroScene(canvas, prefersReducedMotion);
+  return { setView: (viewName) => heroScene.setView(viewName) };
 }

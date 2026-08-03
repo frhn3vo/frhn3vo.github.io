@@ -1,3 +1,12 @@
+  /* Opts every page that loads this stylesheet into the browser's native
+     cross-document View Transitions — a smooth crossfade between pages
+     on navigation, with zero routing/JS required. Supported in Chrome,
+     Edge, and Safari as of 2026; browsers without support just navigate
+     normally (this rule is silently ignored, nothing breaks). */
+  @view-transition {
+    navigation: auto;
+  }
+
   :root{
     /* ---- Design tokens: strict grayscale ---- */
     --bg:            #0A0A0A;
@@ -72,6 +81,10 @@
     background: rgba(10, 10, 10, 0.82);
     backdrop-filter: blur(10px);
     border-bottom: 3px solid var(--text);
+    /* Same name on every page → the browser treats it as one persisting
+       element across navigation (morphs/stays put) instead of crossfading
+       it, so the nav doesn't flicker during the page transition. */
+    view-transition-name: site-header;
   }
   header::after{
     content:"";
@@ -166,13 +179,15 @@
   }
 
   /* ---------------- HERO / VIEWPORT ---------------- */
-  .hero{
-    position: relative;
-    height: 100vh;
-    min-height: 680px;
-    display:flex;
-    align-items:flex-end;
-    overflow:hidden;
+  /* ---------------- PERSISTENT 3D SCENE LAYER ----------------
+     Fixed behind everything, present for the entire session — never
+     torn down when switching views (that's the whole point of the
+     SPA study version). Content panels sit on top of it. */
+  .scene-layer{
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
   }
   #viewport-canvas{
     position:absolute; inset:0;
@@ -185,9 +200,48 @@
     pointer-events:none;
   }
 
-  /* HUD chrome overlaying the viewport, like a spec sheet */
+  /* Covers the scene while three.js spins up, so there's no "pop-in"
+     right after the page first loads. Fades out once hero-scene.js
+     has rendered its first frame (see js/spa.js). */
+  .scene-loading-mask{
+    position:fixed; inset:0;
+    z-index: 5;
+    background: var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    transition: opacity .4s ease, visibility .4s ease;
+  }
+  .scene-loading-mask.hidden{
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .scene-loading-text{
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display:flex; align-items:center; gap:12px;
+  }
+  .scene-loading-text::after{
+    content:"";
+    width: 14px; height: 14px;
+    border: 2px solid var(--hairline);
+    border-top-color: var(--text);
+    border-radius: 50%;
+    animation: scene-spin .8s linear infinite;
+  }
+  @keyframes scene-spin{ to{ transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){
+    .scene-loading-text::after{ animation: none; }
+  }
+
+  /* HUD chrome overlaying the viewport, like a spec sheet — persists
+     across every view, just like Tekken keeps its menu chrome up while
+     the character/camera reacts underneath. */
   .hud-corner{
-    position:absolute;
+    position:fixed;
+    z-index: 3;
     font-family: var(--font-mono);
     font-size: 0.7rem;
     color: var(--text-muted);
@@ -201,13 +255,66 @@
   .hud-top-right .stat-line span.v{ color: var(--white); }
 
   .axis-gizmo{
-    position:absolute; bottom: 210px; right: 32px;
+    position:fixed;
+    z-index: 3;
+    bottom: 32px; right: 32px;
     width: 84px; height: 84px;
     pointer-events:none;
   }
   .axis-gizmo svg{ width:100%; height:100%; }
   .axis-gizmo text{ font-family: var(--font-mono); font-size: 11px; font-weight:700; }
 
+  @media (max-width: 860px){
+    .hud-top-left, .hud-top-right, .axis-gizmo{ display:none; }
+  }
+
+  /* ---------------- VIEW PANELS ----------------
+     Only one visible at a time. The "home" view is the transparent
+     hero overlay (3D shows straight through); the others get a
+     near-solid backdrop so their content stays readable, with the
+     scene still faintly visible around/behind them for continuity. */
+  .view-panel{
+    display:none;
+    position:relative;
+    z-index: 2;
+    min-height: 100vh;
+  }
+  .view-panel.active{
+    display:block;
+    animation: panel-in .45s ease;
+  }
+  @keyframes panel-in{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .view-panel.active{ animation:none; }
+  }
+
+  .view-panel:not([data-view="home"]){
+    /* Fully transparent — same treatment as the Home hero. The orb
+       and particles show through exactly as clearly here as on Home;
+       individual cards/panels (.panel, .project-card, etc.) already
+       have their own near-solid background for text readability, so
+       nothing here needs to dim the scene globally. */
+    background: transparent;
+    padding-top: 96px;
+  }
+
+  /* ---------------- HOME VIEW ---------------- */
+  .view-home-inner{
+    height: 100vh;
+    min-height: 680px;
+    display:flex;
+    align-items:flex-end;
+    /* Transparent, but still a real box sitting in front of the canvas —
+       without this, it silently swallows every drag before it reaches
+       the 3D scene underneath. Re-enabled on the actual buttons below. */
+    pointer-events: none;
+  }
+  .hero-ctas a{
+    pointer-events: auto;
+  }
   .hero-content{
     position:relative;
     z-index: 2;
