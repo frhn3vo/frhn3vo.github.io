@@ -306,7 +306,7 @@
     height: 100vh;
     min-height: 680px;
     display:flex;
-    align-items:flex-end;
+    align-items:center;
     /* Transparent, but still a real box sitting in front of the canvas —
        without this, it silently swallows every drag before it reaches
        the 3D scene underneath. Re-enabled on the actual buttons below. */
@@ -319,7 +319,6 @@
     position:relative;
     z-index: 2;
     width:100%;
-    padding-bottom: 88px;
   }
   .hero-content h1{
     font-size: clamp(2.7rem, 6.2vw, 4.8rem);
