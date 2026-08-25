@@ -11,11 +11,11 @@
 
 const VALID_VIEWS = ['projects', 'skills', 'experience', 'contact']; // 'home' is the implicit default
 const TITLES = {
-  home: 'Nasi Ayam — Game Developer',
-  projects: 'Projects — Nasi Ayam',
-  skills: 'Skills — Nasi Ayam',
-  experience: 'Experience — Nasi Ayam',
-  contact: 'Contact — Nasi Ayam',
+  home: 'Muhammad Farhan — Game Developer',
+  projects: 'Projects — Muhammad Farhan',
+  skills: 'Skills — Muhammad Farhan',
+  experience: 'Experience — Muhammad Farhan',
+  contact: 'Contact — Muhammad Farhan',
 };
 
 function parseView() {
@@ -32,16 +32,16 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const revealIO = prefersReducedMotion
   ? null
   : new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in');
-            revealIO.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15 }
-    );
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revealIO.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
 
 function observeRevealsIn(panel) {
   const els = panel.querySelectorAll('.reveal');
