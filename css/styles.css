@@ -108,7 +108,7 @@
   }
   .logo .dot-cluster{ display:none; }
 
-  .nav-links{ display:flex; gap: 36px; }
+  .nav-links{ display:flex; gap: 30px; }
   .nav-links a{
     font-family: var(--font-mono);
     font-size: 0.78rem;

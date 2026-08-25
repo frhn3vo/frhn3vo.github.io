@@ -1,18 +1,20 @@
 // ============================================================
 // STUDY VERSION — SPA router
 // ============================================================
-// Reads the URL hash (#/, #/projects, #/resume, #/contact), shows the
+// Reads the URL hash (#/, #/projects, #/skills, #/experience,
+// #/contact), shows the
 // matching <section class="view-panel" data-view="..."> in index.html,
 // and tells the persistent three.js scene (hero-scene.js) to move its
 // camera to that view's preset. The canvas/WebGL context is created
 // once here and never torn down while browsing.
 // ============================================================
 
-const VALID_VIEWS = ['projects', 'resume', 'contact']; // 'home' is the implicit default
+const VALID_VIEWS = ['projects', 'skills', 'experience', 'contact']; // 'home' is the implicit default
 const TITLES = {
   home: 'Nasi Ayam — Game Developer',
   projects: 'Projects — Nasi Ayam',
-  resume: 'Resume — Nasi Ayam',
+  skills: 'Skills — Nasi Ayam',
+  experience: 'Experience — Nasi Ayam',
   contact: 'Contact — Nasi Ayam',
 };
 

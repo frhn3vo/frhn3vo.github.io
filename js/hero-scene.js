@@ -25,10 +25,11 @@ const MODEL_URL = null; // null => use the built-in placeholder shape
 // reloading, the same camera just glides to a different spot and looks
 // at a different point when you switch views. Edit these to taste.
 const CAMERA_PRESETS = {
-  home:     { pos: [4.5, 2.6, 6.5],  target: [0, 0.2, 0], autoRotate: true,  rotateSpeed: 0.6,  interactive: true  },
-  projects: { pos: [1.8, 1.0, 7.6],  target: [0, 0.1, 0], autoRotate: true,  rotateSpeed: 0.18, interactive: false },
-  resume:   { pos: [-3.2, 3.1, 5.4], target: [0, 0.4, 0], autoRotate: true,  rotateSpeed: 0.12, interactive: false },
-  contact:  { pos: [0.2, 4.4, 4.2],  target: [0, 0, 0],   autoRotate: false, rotateSpeed: 0,    interactive: false },
+  home:       { pos: [4.5, 2.6, 6.5],   target: [0, 0.2, 0], autoRotate: true,  rotateSpeed: 0.6,  interactive: true  },
+  projects:   { pos: [1.8, 1.0, 7.6],   target: [0, 0.1, 0], autoRotate: true,  rotateSpeed: 0.18, interactive: false },
+  skills:     { pos: [-1.4, 0.6, -6.5], target: [0, 0.1, 0], autoRotate: true,  rotateSpeed: 0.22, interactive: false },
+  experience: { pos: [5.6, -0.4, 3.0],  target: [0, 0, 0],   autoRotate: true,  rotateSpeed: 0.15, interactive: false },
+  contact:    { pos: [0.2, 4.4, 4.2],   target: [0, 0, 0],   autoRotate: false, rotateSpeed: 0,    interactive: false },
 };
 const TWEEN_MS = 1200;
 
