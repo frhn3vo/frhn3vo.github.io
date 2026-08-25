@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nasi Ayam — Game Developer</title>
-<link rel="icon" href="data:,">
-<link rel="stylesheet" href="css/styles.css" />
-<!-- three.js import map: the scene is loaded once and persists for the
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muhammad Farhan — Game Developer</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- three.js import map: the scene is loaded once and persists for the
      whole session, so this only needs to be declared here in the shell. -->
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -17,12 +18,15 @@
 }
 </script>
 </head>
+
 <body>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600&display=swap"
+    rel="stylesheet">
 
-<!--
+  <!--
   ============================================================
   STUDY / EXPERIMENTAL VERSION — single-page app
   ============================================================
@@ -46,488 +50,515 @@
   ============================================================
 -->
 
-<!-- ============== PERSISTENT 3D SCENE (never torn down) ============== -->
-<div class="scene-layer">
-  <canvas id="viewport-canvas"></canvas>
-  <div class="viewport-vignette"></div>
-</div>
+  <!-- ============== PERSISTENT 3D SCENE (never torn down) ============== -->
+  <div class="scene-layer">
+    <canvas id="viewport-canvas"></canvas>
+    <div class="viewport-vignette"></div>
+  </div>
 
-<div class="scene-loading-mask" id="sceneLoadingMask">
-  <span class="scene-loading-text">Loading scene</span>
-</div>
+  <div class="scene-loading-mask" id="sceneLoadingMask">
+    <span class="scene-loading-text">Loading scene</span>
+  </div>
 
-<div class="hud-corner hud-top-left" id="hudSceneLine">
-  SCENE: home_view.glb<br>
-  RENDERER: WebGL — three.js
-</div>
-<div class="hud-corner hud-top-right">
-  <div>VIEWPORT / PERSPECTIVE</div>
-  <div class="stat-line"><span class="k">FPS</span><span class="v" id="fps-readout">60</span></div>
-</div>
+  <div class="hud-corner hud-top-left" id="hudSceneLine">
+    SCENE: home_view.glb<br>
+    RENDERER: WebGL — three.js
+  </div>
+  <div class="hud-corner hud-top-right">
+    <div>VIEWPORT / PERSPECTIVE</div>
+    <div class="stat-line"><span class="k">FPS</span><span class="v" id="fps-readout">60</span></div>
+  </div>
 
-<div class="axis-gizmo" aria-hidden="true">
-  <svg viewBox="0 0 84 84">
-    <line x1="42" y1="42" x2="42" y2="10" stroke="#FFFFFF" stroke-width="2"/>
-    <circle cx="42" cy="8" r="7" fill="#FFFFFF"/>
-    <text x="42" y="11" fill="#0A0A0A" text-anchor="middle">Y</text>
+  <div class="axis-gizmo" aria-hidden="true">
+    <svg viewBox="0 0 84 84">
+      <line x1="42" y1="42" x2="42" y2="10" stroke="#FFFFFF" stroke-width="2" />
+      <circle cx="42" cy="8" r="7" fill="#FFFFFF" />
+      <text x="42" y="11" fill="#0A0A0A" text-anchor="middle">Y</text>
 
-    <line x1="42" y1="42" x2="72" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.65"/>
-    <circle cx="75" cy="60" r="7" fill="#FFFFFF" opacity="0.65"/>
-    <text x="75" y="63" fill="#0A0A0A" text-anchor="middle">X</text>
+      <line x1="42" y1="42" x2="72" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.65" />
+      <circle cx="75" cy="60" r="7" fill="#FFFFFF" opacity="0.65" />
+      <text x="75" y="63" fill="#0A0A0A" text-anchor="middle">X</text>
 
-    <line x1="42" y1="42" x2="14" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.35"/>
-    <circle cx="11" cy="60" r="7" fill="#FFFFFF" opacity="0.35"/>
-    <text x="11" y="63" fill="#0A0A0A" text-anchor="middle">Z</text>
-  </svg>
-</div>
+      <line x1="42" y1="42" x2="14" y2="58" stroke="#FFFFFF" stroke-width="2" opacity="0.35" />
+      <circle cx="11" cy="60" r="7" fill="#FFFFFF" opacity="0.35" />
+      <text x="11" y="63" fill="#0A0A0A" text-anchor="middle">Z</text>
+    </svg>
+  </div>
 
-<header>
-  <nav class="wrap">
-    <div class="logo">
-      <span class="dot-cluster"><span></span><span></span><span></span></span>
-      NASI AYAM
-    </div>
-    <ul class="nav-links">
-      <li><a href="#/" data-nav="home">Home</a></li>
-      <li><a href="#/projects" data-nav="projects">Projects</a></li>
-      <li><a href="#/skills" data-nav="skills">Skills</a></li>
-      <li><a href="#/experience" data-nav="experience">Experience</a></li>
-      <li><a href="#/contact" data-nav="contact">Contact</a></li>
-    </ul>
-    <a class="btn btn-primary" href="#/contact">Get in touch</a>
-    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
-  </nav>
-</header>
-
-<main id="view-root">
-
-  <!-- ============== HOME ============== -->
-  <section class="view-panel" data-view="home">
-    <div class="view-home-inner">
-      <div class="wrap hero-content">
-        <div class="eyebrow">Game Developer &amp; Technical Artist</div>
-        <h1>Building worlds<br>that <span class="accent">respond</span> to you.</h1>
-        <p class="hero-sub">
-          I design and ship gameplay systems, shaders, and real-time 3D experiences —
-          from prototype to polished build. Currently open to new projects.
-        </p>
-        <div class="hero-ctas">
-          <a class="btn btn-primary" href="#/projects">View projects</a>
-          <a class="btn" href="#/skills">See skills</a>
-        </div>
-        <div class="drag-hint">
-          <span>◎</span> drag to orbit the scene
-        </div>
+  <header>
+    <nav class="wrap">
+      <div class="logo">
+        <span class="dot-cluster"><span></span><span></span><span></span></span>
+        MUHAMMAD FARHAN
       </div>
-    </div>
+      <ul class="nav-links">
+        <li><a href="#/" data-nav="home">Home</a></li>
+        <li><a href="#/projects" data-nav="projects">Projects</a></li>
+        <li><a href="#/skills" data-nav="skills">Skills</a></li>
+        <li><a href="#/experience" data-nav="experience">Experience</a></li>
+        <li><a href="#/contact" data-nav="contact">Contact</a></li>
+      </ul>
+      <a class="btn btn-primary" href="#/contact">Get in touch</a>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    </nav>
+  </header>
 
-    <section id="about-me">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="eyebrow">Profile</div>
-          <h2>About Me</h2>
-        </div>
-        <div class="panel axis-z reveal">
-          <p style="color: var(--text); font-size: 0.98rem; max-width: 78ch;">
-            Information Technology (Game Technology) student at Universiti Teknikal Malaysia Melaka (UTeM)
-            with experience in software development, web applications, IoT, embedded systems, and game
-            development. Experienced in developing practical software solutions through both professional
-            work and academic projects. Enjoy solving problems, learning new technologies, and turning
-            ideas into working applications and interactive experiences. Currently seeking opportunities
-            as a Software Engineer, Game Developer, or related technology role where I can contribute my
-            skills and continue growing as a developer.
+  <main id="view-root">
+
+    <!-- ============== HOME ============== -->
+    <section class="view-panel" data-view="home">
+      <div class="view-home-inner">
+        <div class="wrap hero-content">
+          <div class="eyebrow">Game Developer &amp; Technical Artist</div>
+          <h1>Building worlds<br>that <span class="accent">respond</span> to you.</h1>
+          <p class="hero-sub">
+            I design and ship gameplay systems, shaders, and real-time 3D experiences —
+            from prototype to polished build. Currently open to new projects.
           </p>
-        </div>
-      </div>
-    </section>
-
-    <section id="featured">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="eyebrow">Latest Build</div>
-          <h2>Fishing Tycoon</h2>
-          <p>A browser-based 3D tycoon game built with three.js — sail out, cast a line, sell your catch, and upgrade your boat to clear bigger contracts.</p>
-        </div>
-
-        <div class="panel reveal" style="display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
-          <div>
-            <h3 style="font-family:var(--font-display); font-size:1.2rem; text-transform:none; letter-spacing:normal; color:var(--text); margin-bottom:8px;">Playable right now</h3>
-            <p style="color:var(--text-muted); max-width:52ch;">Built entirely with three.js: boat movement, timed fishing zones, an economy loop, and an upgrade tree.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary" href="#/projects">View projects</a>
+            <a class="btn" href="#/skills">See skills</a>
           </div>
-          <div style="display:flex; gap:12px; flex-shrink:0;">
-            <a class="btn btn-primary" href="games/fishing-tycoon/index.html">Play now</a>
-            <a class="btn" href="#/projects">All projects →</a>
+          <div class="drag-hint">
+            <span>◎</span> drag to orbit the scene
           </div>
         </div>
       </div>
-    </section>
-  </section>
 
-  <!-- ============== PROJECTS ============== -->
-  <section class="view-panel" data-view="projects">
-    <section class="page-hero" style="padding-top:0;">
-      <div class="wrap">
-        <div class="eyebrow">Scene Assets — loaded</div>
-        <h1>Selected work</h1>
-        <p>Coursework, personal builds, and one playable game — spanning electronics, tooling, and gameplay systems. Click any card below for a closer look.</p>
-      </div>
-    </section>
+      <section id="about-me">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <div class="eyebrow">Profile</div>
+            <h2>About Me</h2>
+          </div>
+          <div class="panel axis-z reveal">
+            <p style="color: var(--text); font-size: 0.98rem; max-width: 78ch;">
+              Information Technology (Game Technology) student at Universiti Teknikal Malaysia Melaka (UTeM)
+              with experience in software development, web applications, IoT, embedded systems, and game
+              development. Experienced in developing practical software solutions through both professional
+              work and academic projects. Enjoy solving problems, learning new technologies, and turning
+              ideas into working applications and interactive experiences. Currently seeking opportunities
+              as a Software Engineer, Game Developer, or related technology role where I can contribute my
+              skills and continue growing as a developer.
+            </p>
+          </div>
+        </div>
+      </section>
 
-    <section id="work">
-      <div class="wrap">
-        <div class="project-grid">
+      <section id="featured">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <div class="eyebrow">Latest Build</div>
+            <h2>Fishing Tycoon</h2>
+            <p>A browser-based 3D tycoon game built with three.js — sail out, cast a line, sell your catch, and upgrade
+              your boat to clear bigger contracts.</p>
+          </div>
 
-          <div class="project-card project-card--featured reveal">
-            <div class="project-thumb" data-scene="SCENE_00"
-                 style="background: linear-gradient(135deg, #1a1a1a, #3a3a3a); position:relative;">
-              <span class="playable-badge">Playable</span>
+          <div class="panel reveal"
+            style="display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap;">
+            <div>
+              <h3
+                style="font-family:var(--font-display); font-size:1.2rem; text-transform:none; letter-spacing:normal; color:var(--text); margin-bottom:8px;">
+                Playable right now</h3>
+              <p style="color:var(--text-muted); max-width:52ch;">Built entirely with three.js: boat movement, timed
+                fishing zones, an economy loop, and an upgrade tree.</p>
             </div>
-            <div class="project-body">
-              <h3>Fishing Tycoon</h3>
-              <p>A 3D browser tycoon game built with three.js. Pilot a boat across open water, cast into timed fishing zones, sell your catch at the dock, and clear contract quotas to progress. Includes a full upgrade tree — inventory capacity, cast speed, boat engine, and research — plus a win state once every contract is cleared.</p>
-              <div class="project-links">
-                <a href="games/fishing-tycoon/index.html">Play now →</a>
+            <div style="display:flex; gap:12px; flex-shrink:0;">
+              <a class="btn btn-primary" href="games/fishing-tycoon/index.html">Play now</a>
+              <a class="btn" href="#/projects">All projects →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============== PROJECTS ============== -->
+    <section class="view-panel" data-view="projects">
+      <section class="page-hero" style="padding-top:0;">
+        <div class="wrap">
+          <div class="eyebrow">Scene Assets — loaded</div>
+          <h1>Selected work</h1>
+          <p>Coursework, personal builds, and one playable game — spanning electronics, tooling, and gameplay systems.
+            Click any card below for a closer look.</p>
+        </div>
+      </section>
+
+      <section id="work">
+        <div class="wrap">
+          <div class="project-grid">
+
+            <div class="project-card project-card--featured reveal">
+              <div class="project-thumb" data-scene="SCENE_00"
+                style="background: linear-gradient(135deg, #1a1a1a, #3a3a3a); position:relative;">
+                <span class="playable-badge">Playable</span>
+              </div>
+              <div class="project-body">
+                <h3>Fishing Tycoon</h3>
+                <p>A 3D browser tycoon game built with three.js. Pilot a boat across open water, cast into timed fishing
+                  zones, sell your catch at the dock, and clear contract quotas to progress. Includes a full upgrade
+                  tree — inventory capacity, cast speed, boat engine, and research — plus a win state once every
+                  contract is cleared.</p>
+                <div class="project-links">
+                  <a href="games/fishing-tycoon/index.html">Play now →</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="ENGINE_TOOLS"
+                style="background: linear-gradient(135deg, #161616, #333333);"></div>
+              <div class="project-body">
+                <h3>Custom Game-Dev Workstation</h3>
+                <p>Built with raylib and C++: a sprite editor, animation editor, and level editor in one toolset —
+                  essentially a self-made game engine built to speed up my own development.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="HORROR_AI"
+                style="background: linear-gradient(135deg, #1c1c1c, #3e3e3e);"></div>
+              <div class="project-body">
+                <h3>FSM-Driven Horror Game</h3>
+                <p>Unity horror game with a finite state machine, a behaviour tree, an event-driven
+                  trigger-and-random-response system, and pathfinding for enemy AI.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="TRAFFIC_CHAOS"
+                style="background: linear-gradient(135deg, #181818, #363636);"></div>
+              <div class="project-body">
+                <h3>Traffic Chaos</h3>
+                <p>An OpenGL + C++ endless-runner style game where the car dodges oncoming obstacles and keeps moving
+                  forward, chasing a high score.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="LEMON_KNIGHT"
+                style="background: linear-gradient(135deg, #1e1e1e, #404040);"></div>
+              <div class="project-body">
+                <h3>Lemon Knight</h3>
+                <p>A platformer built in Godot, later given its own trailer edited in DaVinci Resolve with custom
+                  typography and storyboarded shots.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="GOLD_SWEEPER"
+                style="background: linear-gradient(135deg, #171717, #353535);"></div>
+              <div class="project-body">
+                <h3>Gold Sweeper</h3>
+                <p>A Minesweeper variant in C++ — instead of avoiding mines, you're hunting for hidden gold, with a
+                  randomized-pattern generation algorithm.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="FACE_DOOR"
+                style="background: linear-gradient(135deg, #1a1a1a, #383838);"></div>
+              <div class="project-body">
+                <h3>Ultimate Face Recognizer Door</h3>
+                <p>An ESP32-based smart door that unlocks automatically on face recognition — spanning embedded
+                  programming and hardware wiring.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="MMS"
+                style="background: linear-gradient(135deg, #1d1d1d, #3b3b3b);"></div>
+              <div class="project-body">
+                <h3>Maintenance Management System</h3>
+                <p>A C++ and MySQL (XAMPP) platform designed to streamline how organizations track and manage their
+                  maintenance operations.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="IOT_DASH"
+                style="background: linear-gradient(135deg, #191919, #373737);"></div>
+              <div class="project-body">
+                <h3>IoT Factory Dashboard</h3>
+                <p>A real-time factory electrical-usage monitor built on the Modbus protocol with Node-RED, including a
+                  custom dashboard for energy visualization. Built professionally at Enomatrix Solutions.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+            <div class="project-card project-card--clickable reveal">
+              <div class="project-thumb" data-scene="GAMEDEVRUSH"
+                style="background: linear-gradient(135deg, #1b1b1b, #393939);"></div>
+              <div class="project-body">
+                <h3>GameDevRush</h3>
+                <p>A Unity game built to teach people about game development concepts as they play.</p>
+                <span class="view-hint">View details</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <section id="also-built">
+        <div class="wrap">
+          <div class="section-head reveal">
+            <div class="eyebrow">Archive</div>
+            <h2>Also built</h2>
+            <p>Smaller projects and coursework spanning electronics, embedded systems, and quick game prototypes.</p>
+          </div>
+
+          <div class="panel-grid reveal">
+            <div class="panel">
+              <h3>Electronics &amp; Embedded</h3>
+              <div class="chip-row">
+                <span class="chip">CMOS Logic Design (VLSI, K-map)</span>
+                <span class="chip">LED Relay PCB (Proteus)</span>
+                <span class="chip">PC Building &amp; Maintenance</span>
+                <span class="chip">Automatic Shirt-Folder (Arduino)</span>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Web &amp; Systems</h3>
+              <div class="chip-row">
+                <span class="chip">Easy Personal Shopper (VB + SQL)</span>
+                <span class="chip">CAPTCHA-style Auth System (C)</span>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Games &amp; Prototypes</h3>
+              <div class="chip-row">
+                <span class="chip">Vending Machine (C++)</span>
+                <span class="chip">Disaster Trading Card Game</span>
+                <span class="chip">Raylib Arcade Pack — Tetris, Space Invaders, Snake, Pong</span>
+                <span class="chip">Math Learning Game (Godot)</span>
               </div>
             </div>
           </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="ENGINE_TOOLS"
-                 style="background: linear-gradient(135deg, #161616, #333333);"></div>
-            <div class="project-body">
-              <h3>Custom Game-Dev Workstation</h3>
-              <p>Built with raylib and C++: a sprite editor, animation editor, and level editor in one toolset — essentially a self-made game engine built to speed up my own development.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="HORROR_AI"
-                 style="background: linear-gradient(135deg, #1c1c1c, #3e3e3e);"></div>
-            <div class="project-body">
-              <h3>FSM-Driven Horror Game</h3>
-              <p>Unity horror game with a finite state machine, a behaviour tree, an event-driven trigger-and-random-response system, and pathfinding for enemy AI.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="TRAFFIC_CHAOS"
-                 style="background: linear-gradient(135deg, #181818, #363636);"></div>
-            <div class="project-body">
-              <h3>Traffic Chaos</h3>
-              <p>An OpenGL + C++ endless-runner style game where the car dodges oncoming obstacles and keeps moving forward, chasing a high score.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="LEMON_KNIGHT"
-                 style="background: linear-gradient(135deg, #1e1e1e, #404040);"></div>
-            <div class="project-body">
-              <h3>Lemon Knight</h3>
-              <p>A platformer built in Godot, later given its own trailer edited in DaVinci Resolve with custom typography and storyboarded shots.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="GOLD_SWEEPER"
-                 style="background: linear-gradient(135deg, #171717, #353535);"></div>
-            <div class="project-body">
-              <h3>Gold Sweeper</h3>
-              <p>A Minesweeper variant in C++ — instead of avoiding mines, you're hunting for hidden gold, with a randomized-pattern generation algorithm.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="FACE_DOOR"
-                 style="background: linear-gradient(135deg, #1a1a1a, #383838);"></div>
-            <div class="project-body">
-              <h3>Ultimate Face Recognizer Door</h3>
-              <p>An ESP32-based smart door that unlocks automatically on face recognition — spanning embedded programming and hardware wiring.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="MMS"
-                 style="background: linear-gradient(135deg, #1d1d1d, #3b3b3b);"></div>
-            <div class="project-body">
-              <h3>Maintenance Management System</h3>
-              <p>A C++ and MySQL (XAMPP) platform designed to streamline how organizations track and manage their maintenance operations.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="IOT_DASH"
-                 style="background: linear-gradient(135deg, #191919, #373737);"></div>
-            <div class="project-body">
-              <h3>IoT Factory Dashboard</h3>
-              <p>A real-time factory electrical-usage monitor built on the Modbus protocol with Node-RED, including a custom dashboard for energy visualization. Built professionally at Enomatrix Solutions.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
-          <div class="project-card project-card--clickable reveal">
-            <div class="project-thumb" data-scene="GAMEDEVRUSH"
-                 style="background: linear-gradient(135deg, #1b1b1b, #393939);"></div>
-            <div class="project-body">
-              <h3>GameDevRush</h3>
-              <p>A Unity game built to teach people about game development concepts as they play.</p>
-              <span class="view-hint">View details</span>
-            </div>
-          </div>
-
         </div>
-      </div>
+      </section>
     </section>
 
-    <section id="also-built">
-      <div class="wrap">
-        <div class="section-head reveal">
-          <div class="eyebrow">Archive</div>
-          <h2>Also built</h2>
-          <p>Smaller projects and coursework spanning electronics, embedded systems, and quick game prototypes.</p>
+    <!-- ============== RESUME ============== -->
+    <!-- ============== ABOUT ============== -->
+    <!-- ============== SKILLS ============== -->
+    <section class="view-panel" data-view="skills">
+      <section class="page-hero" style="padding-top:0;">
+        <div class="wrap">
+          <div class="eyebrow">Component Inspector</div>
+          <h1>Skills</h1>
+          <p>Tools and languages grouped the way an engine groups a scene: by what they drive.</p>
         </div>
+      </section>
 
-        <div class="panel-grid reveal">
-          <div class="panel">
-            <h3>Electronics &amp; Embedded</h3>
-            <div class="chip-row">
-              <span class="chip">CMOS Logic Design (VLSI, K-map)</span>
-              <span class="chip">LED Relay PCB (Proteus)</span>
-              <span class="chip">PC Building &amp; Maintenance</span>
-              <span class="chip">Automatic Shirt-Folder (Arduino)</span>
+      <section id="skills-grid">
+        <div class="wrap">
+          <div class="panel-grid panel-grid--4 reveal">
+            <div class="panel axis-x">
+              <h3>Programming Languages</h3>
+              <div class="chip-row">
+                <span class="chip">C</span>
+                <span class="chip">C++</span>
+                <span class="chip">C#</span>
+                <span class="chip">Python</span>
+                <span class="chip">PHP</span>
+                <span class="chip">JavaScript</span>
+                <span class="chip">HTML</span>
+                <span class="chip">CSS</span>
+                <span class="chip">Assembly</span>
+                <span class="chip">Visual Basic</span>
+              </div>
             </div>
-          </div>
-          <div class="panel">
-            <h3>Web &amp; Systems</h3>
-            <div class="chip-row">
-              <span class="chip">Easy Personal Shopper (VB + SQL)</span>
-              <span class="chip">CAPTCHA-style Auth System (C)</span>
-            </div>
-          </div>
-          <div class="panel">
-            <h3>Games &amp; Prototypes</h3>
-            <div class="chip-row">
-              <span class="chip">Vending Machine (C++)</span>
-              <span class="chip">Disaster Trading Card Game</span>
-              <span class="chip">Raylib Arcade Pack — Tetris, Space Invaders, Snake, Pong</span>
-              <span class="chip">Math Learning Game (Godot)</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </section>
-
-  <!-- ============== RESUME ============== -->
-  <!-- ============== ABOUT ============== -->
-  <!-- ============== SKILLS ============== -->
-  <section class="view-panel" data-view="skills">
-    <section class="page-hero" style="padding-top:0;">
-      <div class="wrap">
-        <div class="eyebrow">Component Inspector</div>
-        <h1>Skills</h1>
-        <p>Tools and languages grouped the way an engine groups a scene: by what they drive.</p>
-      </div>
-    </section>
-
-    <section id="skills-grid">
-      <div class="wrap">
-        <div class="panel-grid panel-grid--4 reveal">
-          <div class="panel axis-x">
-            <h3>Programming Languages</h3>
-            <div class="chip-row">
-              <span class="chip">C</span>
-              <span class="chip">C++</span>
-              <span class="chip">C#</span>
-              <span class="chip">Python</span>
-              <span class="chip">PHP</span>
-              <span class="chip">JavaScript</span>
-              <span class="chip">HTML</span>
-              <span class="chip">CSS</span>
-              <span class="chip">Assembly</span>
-              <span class="chip">Visual Basic</span>
-            </div>
-          </div>
-          <div class="panel axis-y">
-            <h3>Game Engines &amp; Frameworks</h3>
-            <div class="chip-row">
-              <span class="chip">Unity</span>
-              <span class="chip">Godot</span>
-              <span class="chip">Raylib</span>
-              <span class="chip">OpenGL</span>
-              <span class="chip">Three.js</span>
-              <span class="chip">GDevelop</span>
-            </div>
-          </div>
-          <div class="panel axis-z">
-            <h3>Web Development</h3>
-            <div class="chip-row">
-              <span class="chip">Laravel</span>
-              <span class="chip">Node.js</span>
-              <span class="chip">Xojo</span>
-              <span class="chip">Node-RED</span>
-            </div>
-          </div>
-          <div class="panel axis-w">
-            <h3>Database</h3>
-            <div class="chip-row">
-              <span class="chip">MySQL</span>
-              <span class="chip">SQLyog</span>
-            </div>
-          </div>
-          <div class="panel axis-x">
-            <h3>Embedded Systems &amp; IoT</h3>
-            <div class="chip-row">
-              <span class="chip">Arduino</span>
-              <span class="chip">ESP32</span>
-              <span class="chip">Modbus PLC</span>
-              <span class="chip">PCB Design</span>
-              <span class="chip">Proteus</span>
-            </div>
-          </div>
-          <div class="panel axis-y">
-            <h3>3D Modeling &amp; Digital Art</h3>
-            <div class="chip-row">
-              <span class="chip">Blender</span>
-              <span class="chip">Aseprite</span>
-              <span class="chip">Affinity Photo</span>
-              <span class="chip">AutoCAD</span>
-            </div>
-          </div>
-          <div class="panel axis-z">
-            <h3>Multimedia</h3>
-            <div class="chip-row">
-              <span class="chip">DaVinci Resolve</span>
-              <span class="chip">OBS Studio</span>
-            </div>
-          </div>
-          <div class="panel axis-w">
-            <h3>Development Tools</h3>
-            <div class="chip-row">
-              <span class="chip">Visual Studio</span>
-              <span class="chip">Visual Studio Code</span>
-              <span class="chip">Code::Blocks</span>
-              <span class="chip">XAMPP</span>
-              <span class="chip">Claude Code</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </section>
-
-  <!-- ============== EXPERIENCE ============== -->
-  <section class="view-panel" data-view="experience">
-    <section class="page-hero" style="padding-top:0;">
-      <div class="wrap">
-        <div class="eyebrow">Build History</div>
-        <h1>Experience &amp; Education</h1>
-      </div>
-    </section>
-
-    <section id="experience-timeline">
-      <div class="wrap">
-        <div class="timeline">
-          <div class="t-item reveal">
-            <div class="t-meta">2023 – Present · Universiti Teknikal Malaysia Melaka (UTeM)</div>
-            <h3>Bachelor of Information Technology (Game Technology)</h3>
-            <p>Currently studying game development and software technology through hands-on projects. My studies cover game programming, artificial intelligence, computer graphics, databases, and interactive systems. I have developed games and tools using Unity, C++, Godot, OpenGL, Raylib, and Three.js.</p>
-          </div>
-          <div class="t-item reveal">
-            <div class="t-meta">2022 – 2023 · Institute of IR4.0, Universiti Kebangsaan Malaysia (UKM)</div>
-            <h3>Web Developer</h3>
-            <p>Worked on web-based projects, including the myHealth digital health monitoring platform. I also designed and developed user interface prototypes for Waris, a digital heritage preservation project for Qatar.</p>
-          </div>
-          <div class="t-item reveal">
-            <div class="t-meta">2021 · Enomatrix Solutions Sdn. Bhd.</div>
-            <h3>Junior Software Developer</h3>
-            <p>Worked on software and web development projects for industrial applications. Developed a real-time factory monitoring dashboard using Node-RED and Modbus, worked on a web-based Door End-of-Line Tester, and supported other web applications and data management systems.</p>
-          </div>
-          <div class="t-item reveal">
-            <div class="t-meta">2018 – 2021 · Politeknik Port Dickson</div>
-            <h3>Diploma in Electronic Engineering (Computer)</h3>
-            <p>Built a foundation in programming, electronics, networking, and embedded systems. Developed software using C and Visual Basic with SQL, worked on PCB design, and created an ESP32-based facial recognition access control system.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </section>
-
-  <!-- ============== CONTACT ============== -->
-  <section class="view-panel" data-view="contact">
-    <section class="page-hero" style="padding-top:0;">
-      <div class="wrap">
-        <div class="eyebrow">Inspector — Contact</div>
-        <h1>Let's build something</h1>
-        <p>This form is front-end only — wire it to Formspree, Netlify Forms, or your own backend before it can actually send.</p>
-      </div>
-    </section>
-
-    <section id="contact-section">
-      <div class="wrap">
-        <div class="contact-grid">
-          <form class="reveal" onsubmit="return false;">
-            <div class="field">
-              <label for="name">Name</label>
-              <input id="name" type="text" placeholder="Your name" />
-            </div>
-            <div class="field">
-              <label for="email">Email</label>
-              <input id="email" type="email" placeholder="you@studio.com" />
-            </div>
-            <div class="field">
-              <label for="message">Message</label>
-              <textarea id="message" rows="5" placeholder="Tell me about the project or role..."></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit">Send message</button>
-          </form>
-
-          <div class="contact-side reveal">
             <div class="panel axis-y">
-              <h3>Elsewhere</h3>
-              <p style="margin-bottom:10px;"><a href="#">itch.io/PLACEHOLDER →</a></p>
-              <p style="margin-bottom:10px;"><a href="#">github.com/PLACEHOLDER →</a></p>
-              <p style="margin-bottom:10px;"><a href="#">linkedin.com/in/PLACEHOLDER →</a></p>
-              <p><a href="#">artstation.com/PLACEHOLDER →</a></p>
+              <h3>Game Engines &amp; Frameworks</h3>
+              <div class="chip-row">
+                <span class="chip">Unity</span>
+                <span class="chip">Godot</span>
+                <span class="chip">Raylib</span>
+                <span class="chip">OpenGL</span>
+                <span class="chip">Three.js</span>
+                <span class="chip">GDevelop</span>
+              </div>
+            </div>
+            <div class="panel axis-z">
+              <h3>Web Development</h3>
+              <div class="chip-row">
+                <span class="chip">Laravel</span>
+                <span class="chip">Node.js</span>
+                <span class="chip">Xojo</span>
+                <span class="chip">Node-RED</span>
+              </div>
+            </div>
+            <div class="panel axis-w">
+              <h3>Database</h3>
+              <div class="chip-row">
+                <span class="chip">MySQL</span>
+                <span class="chip">SQLyog</span>
+              </div>
+            </div>
+            <div class="panel axis-x">
+              <h3>Embedded Systems &amp; IoT</h3>
+              <div class="chip-row">
+                <span class="chip">Arduino</span>
+                <span class="chip">ESP32</span>
+                <span class="chip">Modbus PLC</span>
+                <span class="chip">PCB Design</span>
+                <span class="chip">Proteus</span>
+              </div>
+            </div>
+            <div class="panel axis-y">
+              <h3>3D Modeling &amp; Digital Art</h3>
+              <div class="chip-row">
+                <span class="chip">Blender</span>
+                <span class="chip">Aseprite</span>
+                <span class="chip">Affinity Photo</span>
+                <span class="chip">AutoCAD</span>
+              </div>
+            </div>
+            <div class="panel axis-z">
+              <h3>Multimedia</h3>
+              <div class="chip-row">
+                <span class="chip">DaVinci Resolve</span>
+                <span class="chip">OBS Studio</span>
+              </div>
+            </div>
+            <div class="panel axis-w">
+              <h3>Development Tools</h3>
+              <div class="chip-row">
+                <span class="chip">Visual Studio</span>
+                <span class="chip">Visual Studio Code</span>
+                <span class="chip">Code::Blocks</span>
+                <span class="chip">XAMPP</span>
+                <span class="chip">Claude Code</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </section>
-  </section>
 
-</main>
+    <!-- ============== EXPERIENCE ============== -->
+    <section class="view-panel" data-view="experience">
+      <section class="page-hero" style="padding-top:0;">
+        <div class="wrap">
+          <div class="eyebrow">Build History</div>
+          <h1>Experience &amp; Education</h1>
+        </div>
+      </section>
 
-<footer>
-  © <span id="year"></span> Nasi Ayam — built with three.js
-</footer>
+      <section id="experience-timeline">
+        <div class="wrap">
+          <div class="timeline">
+            <div class="t-item reveal">
+              <div class="t-meta">2023 – Present · Universiti Teknikal Malaysia Melaka (UTeM)</div>
+              <h3>Bachelor of Information Technology (Game Technology)</h3>
+              <p>Currently studying game development and software technology through hands-on projects. My studies cover
+                game programming, artificial intelligence, computer graphics, databases, and interactive systems. I have
+                developed games and tools using Unity, C++, Godot, OpenGL, Raylib, and Three.js.</p>
+            </div>
+            <div class="t-item reveal">
+              <div class="t-meta">2022 – 2023 · Institute of IR4.0, Universiti Kebangsaan Malaysia (UKM)</div>
+              <h3>Web Developer</h3>
+              <p>Worked on web-based projects, including the myHealth digital health monitoring platform. I also
+                designed and developed user interface prototypes for Waris, a digital heritage preservation project for
+                Qatar.</p>
+            </div>
+            <div class="t-item reveal">
+              <div class="t-meta">2021 · Enomatrix Solutions Sdn. Bhd.</div>
+              <h3>Junior Software Developer</h3>
+              <p>Worked on software and web development projects for industrial applications. Developed a real-time
+                factory monitoring dashboard using Node-RED and Modbus, worked on a web-based Door End-of-Line Tester,
+                and supported other web applications and data management systems.</p>
+            </div>
+            <div class="t-item reveal">
+              <div class="t-meta">2018 – 2021 · Politeknik Port Dickson</div>
+              <h3>Diploma in Electronic Engineering (Computer)</h3>
+              <p>Built a foundation in programming, electronics, networking, and embedded systems. Developed software
+                using C and Visual Basic with SQL, worked on PCB design, and created an ESP32-based facial recognition
+                access control system.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
 
-<!-- ============== PROJECT DETAIL MODAL ============== -->
-<div class="modal-overlay" id="projectModal" aria-hidden="true">
-  <div class="modal-panel">
-    <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
-    <div class="modal-carousel-viewport">
-      <div class="modal-carousel-track" id="modalTrack"></div>
-    </div>
-    <div class="modal-carousel-nav">
-      <button class="modal-nav-btn" id="modalPrev" aria-label="Previous image">&lsaquo;</button>
-      <button class="modal-nav-btn" id="modalNext" aria-label="Next image">&rsaquo;</button>
-    </div>
-    <div class="modal-body">
-      <div class="eyebrow">Project</div>
-      <h3 id="modalTitle"></h3>
-      <p id="modalDesc"></p>
+    <!-- ============== CONTACT ============== -->
+    <section class="view-panel" data-view="contact">
+      <section class="page-hero" style="padding-top:0;">
+        <div class="wrap">
+          <div class="eyebrow">Inspector — Contact</div>
+          <h1>Let's build something</h1>
+          <p>This form is front-end only — wire it to Formspree, Netlify Forms, or your own backend before it can
+            actually send.</p>
+        </div>
+      </section>
+
+      <section id="contact-section">
+        <div class="wrap">
+          <div class="contact-grid">
+            <form class="reveal" onsubmit="return false;">
+              <div class="field">
+                <label for="name">Name</label>
+                <input id="name" type="text" placeholder="Your name" />
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" type="email" placeholder="you@studio.com" />
+              </div>
+              <div class="field">
+                <label for="message">Message</label>
+                <textarea id="message" rows="5" placeholder="Tell me about the project or role..."></textarea>
+              </div>
+              <button class="btn btn-primary" type="submit">Send message</button>
+            </form>
+
+            <div class="contact-side reveal">
+              <div class="panel axis-y">
+                <h3>Elsewhere</h3>
+                <p style="margin-bottom:10px;"><a href="#">itch.io/PLACEHOLDER →</a></p>
+                <p style="margin-bottom:10px;"><a href="#">github.com/PLACEHOLDER →</a></p>
+                <p style="margin-bottom:10px;"><a href="#">linkedin.com/in/PLACEHOLDER →</a></p>
+                <p><a href="#">artstation.com/PLACEHOLDER →</a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+  </main>
+
+  <footer>
+    © <span id="year"></span> Muhammad Farhan — built with three.js
+  </footer>
+
+  <!-- ============== PROJECT DETAIL MODAL ============== -->
+  <div class="modal-overlay" id="projectModal" aria-hidden="true">
+    <div class="modal-panel">
+      <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      <div class="modal-carousel-viewport">
+        <div class="modal-carousel-track" id="modalTrack"></div>
+      </div>
+      <div class="modal-carousel-nav">
+        <button class="modal-nav-btn" id="modalPrev" aria-label="Previous image">&lsaquo;</button>
+        <button class="modal-nav-btn" id="modalNext" aria-label="Next image">&rsaquo;</button>
+      </div>
+      <div class="modal-body">
+        <div class="eyebrow">Project</div>
+        <h3 id="modalTitle"></h3>
+        <p id="modalDesc"></p>
+      </div>
     </div>
   </div>
-</div>
 
-<script type="module" src="js/spa.js"></script>
-<script defer src="js/project-modal.js"></script>
+  <script type="module" src="js/spa.js"></script>
+  <script defer src="js/project-modal.js"></script>
 </body>
+
 </html>
