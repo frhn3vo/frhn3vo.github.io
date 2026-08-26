@@ -307,6 +307,7 @@
     min-height: 680px;
     display:flex;
     align-items:center;
+    border-bottom: 1px solid var(--hairline);
     /* Transparent, but still a real box sitting in front of the canvas —
        without this, it silently swallows every drag before it reaches
        the 3D scene underneath. Re-enabled on the actual buttons below. */
@@ -349,6 +350,10 @@
   /* ---------------- SECTION SHELLS ---------------- */
   section{ position: relative; padding: 120px 0; }
   section + section{ border-top: 1px solid var(--hairline); }
+  /* #about-me follows a <div> (the hero wrapper), not a <section>, so
+     the rule above skips it — add the same divider explicitly so Home
+     matches the visual pattern every other tab already has. */
+  #about-me{ border-top: 1px solid var(--hairline); }
   .section-head{ margin-bottom: 56px; max-width: 60ch; }
   .section-head h2{ font-size: clamp(1.9rem, 3.4vw, 2.7rem); font-weight: 700; }
   .section-head p{ color: var(--text-muted); margin-top: 14px; }
