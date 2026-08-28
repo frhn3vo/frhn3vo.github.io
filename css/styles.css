@@ -486,7 +486,23 @@
     display:flex; align-items:flex-end;
     padding: 14px;
     filter: grayscale(1);
+    overflow: hidden;
   }
+  /* Auto-rotating thumbnail photo(s) — same image data as the project
+     popup (see js/project-modal.js). A project with only one image
+     (including the generic fallback) just displays it statically;
+     2+ images crossfade between each other automatically. */
+  .project-thumb-img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    opacity:0;
+    transition:opacity 1.2s ease;
+    z-index:0;
+  }
+  .project-thumb-img.is-active{ opacity:1; }
   .project-thumb::after{
     content: attr(data-scene);
     font-family: var(--font-mono);
@@ -496,6 +512,8 @@
     padding: 3px 8px;
     border-radius: 2px;
     letter-spacing: 0.06em;
+    position: relative;
+    z-index: 2;
   }
   .project-body{ padding: 22px; }
   .project-body h3{ font-size: 1.15rem; margin-bottom: 8px; }
@@ -524,6 +542,7 @@
   .playable-badge{
     position:absolute;
     top: 14px; left: 14px;
+    z-index: 2;
     font-family: var(--font-mono);
     font-size: 0.68rem;
     letter-spacing: 0.08em;

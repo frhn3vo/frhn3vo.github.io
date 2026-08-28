@@ -1,6 +1,6 @@
 // Project detail popup: click a project card to see a looping set of
-// (placeholder) screenshots and its description. Closes only via the ×
-// button or Escape — clicking inside the popup no longer closes it.
+// screenshots and its description. Closes only via the × button or
+// Escape — clicking inside the popup no longer closes it.
 //
 // The image strip auto-scrolls by default. Pressing the ‹ / › buttons,
 // or clicking an image directly, pauses it and centers/"focuses" that
@@ -8,63 +8,118 @@
 // clicking a different image jumps straight to it. If left alone for a
 // few seconds, it resumes auto-scrolling on its own.
 //
-// Swapping in real screenshots: replace makePlaceholderImage() below
-// with a lookup that returns real file paths for each project instead
-// of a generated canvas image, e.g. an object keyed by project title.
+// Adding real per-project screenshots: put the image file(s) in
+// assets/, then add an entry to PROJECT_IMAGES below, keyed by the
+// project's exact title (must match the <h3> text on its card), e.g.:
+//   'Traffic Chaos': ['assets/traffic-1.jpg', 'assets/traffic-2.jpg'],
+// Any number of images is fine — 1, 3, 10, whatever you have. A single
+// image is shown statically (no point scrolling one photo against
+// itself); 2+ auto-scroll, with speed scaled so more images doesn't
+// mean a faster-feeling loop. Any project NOT listed here falls back
+// to GENERIC_PLACEHOLDER.
+
+const PROJECT_IMAGES = {
+  // Add real screenshots here as you get them, e.g.:
+  // 'Fishing Tycoon': ['assets/fishing-1.jpg', 'assets/fishing-2.jpg'],
+  'Game Development Workstation': ['assets/editor.png', 'assets/editor1.png', 'assets/editor2.png', 'assets/editor3.png',],
+  'Lemon Knight': ['assets/lemon.png', 'assets/lemon1.png', 'assets/lemon2.png', 'assets/lemon3.png',],
+  'Door End-of-Line (E.O.L.) Tester — Porsche Manufacturing Project': ['assets/porsche.png', 'assets/porsche1.png', 'assets/porsche2.png', 'assets/porsche3.png',],
+  'Industrial IoT Monitoring Dashboard': ['assets/nodered.png', 'assets/nodered1.png', 'assets/nodered2.png', 'assets/nodered3.png',],
+};
+
+const GENERIC_PLACEHOLDER = ['assets/screenshot.jpg'];
+
+// Guaranteed to always render (it's inline, not a file), so if a real
+// path is ever wrong — typo, wrong extension, moved/deleted file —
+// the visitor sees a clean themed placeholder instead of the
+// browser's ugly broken-image icon.
+const FALLBACK_IMAGE_SRC = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420">' +
+  '<rect width="100%" height="100%" fill="#141414"/>' +
+  '<rect x="1" y="1" width="598" height="418" fill="none" stroke="#3A3A38"/>' +
+  '<text x="50%" y="50%" fill="#8F8F8C" font-family="monospace" font-size="20" ' +
+  'text-anchor="middle" dominant-baseline="middle">No image available</text>' +
+  '</svg>'
+);
+
+function getImagesForProject(title) {
+  return PROJECT_IMAGES[title] || GENERIC_PLACEHOLDER;
+}
+
+// Creates one <img>, wired so a failed/missing file falls back to the
+// themed placeholder above instead of a broken-image icon.
+function createCarouselImage(src, alt) {
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = alt;
+  img.onerror = function () {
+    this.onerror = null; // prevent a loop if the fallback itself ever failed
+    this.src = FALLBACK_IMAGE_SRC;
+  };
+  return img;
+}
+
+// Populates every project card's thumbnail with the same image data
+// used in the popup. A card with 2+ images crossfades between them
+// automatically; 1 image (including the generic fallback) just shows
+// statically — nothing to rotate with only one photo.
+const THUMB_ROTATE_MS = 4500;
+
+function setupCardThumbnails() {
+  document.querySelectorAll('.project-card').forEach((card) => {
+    const thumb = card.querySelector('.project-thumb');
+    const title = card.querySelector('h3')?.textContent.trim();
+    if (!thumb || !title) return;
+
+    const images = getImagesForProject(title);
+    const fragment = document.createDocumentFragment();
+    const imgEls = images.map((src, i) => {
+      const img = createCarouselImage(src, `${title} — thumbnail`);
+      img.classList.add('project-thumb-img');
+      if (i === 0) img.classList.add('is-active');
+      fragment.appendChild(img);
+      return img;
+    });
+    thumb.prepend(fragment);
+
+    if (imgEls.length <= 1) return; // nothing to rotate
+
+    let index = 0;
+    setInterval(() => {
+      imgEls[index].classList.remove('is-active');
+      index = (index + 1) % imgEls.length;
+      imgEls[index].classList.add('is-active');
+    }, THUMB_ROTATE_MS);
+  });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
+  setupCardThumbnails();
+
   const overlay = document.getElementById('projectModal');
   if (!overlay) return; // this page has no modal (not the Projects page)
 
   const track = document.getElementById('modalTrack');
   const viewport = document.querySelector('.modal-carousel-viewport');
+  const navControls = document.querySelector('.modal-carousel-nav');
   const titleEl = document.getElementById('modalTitle');
   const descEl = document.getElementById('modalDesc');
   const closeBtn = document.getElementById('modalClose');
   const prevBtn = document.getElementById('modalPrev');
   const nextBtn = document.getElementById('modalNext');
 
-  const IMAGE_COUNT = 4;
   const IDLE_RESUME_MS = 5000;
+  const BASE_MARQUEE_SECONDS = 20; // tuned for a 4-image set
+  const BASE_IMAGE_COUNT = 4;
 
-  const TONES = [
-    ['#1a1a1a', '#3a3a3a'],
-    ['#1c1c1c', '#3e3e3e'],
-    ['#181818', '#363636'],
-    ['#1e1e1e', '#404040'],
-  ];
-
+  let imageCount = 4; // recalculated per-project in openModalFor, since lists can vary in length
   let currentIndex = 0;
   let manual = false;
   let idleTimer = null;
-
-  function makePlaceholderImage(title, index, tone) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 600;
-    canvas.height = 420;
-    const ctx = canvas.getContext('2d');
-
-    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    grad.addColorStop(0, tone[0]);
-    grad.addColorStop(1, tone[1]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(14, 14, canvas.width - 28, canvas.height - 28);
-
-    ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(244,244,242,0.9)';
-    ctx.font = '600 26px "JetBrains Mono", Consolas, monospace';
-    ctx.fillText(title.toUpperCase(), canvas.width / 2, canvas.height / 2 - 6);
-
-    ctx.fillStyle = 'rgba(244,244,242,0.5)';
-    ctx.font = '400 16px "JetBrains Mono", Consolas, monospace';
-    ctx.fillText(`FIG. 0${index} — PLACEHOLDER SCREENSHOT`, canvas.width / 2, canvas.height / 2 + 26);
-
-    return canvas.toDataURL('image/png');
-  }
+  // The correct "auto-scrolling" animation CSS for whatever project is
+  // currently open — reapplied by resumeAuto() so coming out of manual
+  // mode restores the right speed instead of a hardcoded default.
+  let marqueeAnimationCss = 'none';
 
   // Reads the track's current animated (or manually set) X offset,
   // whether it came from the CSS keyframe animation or an inline style.
@@ -80,12 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function uniqueImages() {
-    return Array.from(track.children).slice(0, IMAGE_COUNT);
+    return Array.from(track.children).slice(0, imageCount);
   }
 
   function setActive(index) {
     Array.from(track.children).forEach((img, i) => {
-      img.classList.toggle('is-active', i % IMAGE_COUNT === index);
+      img.classList.toggle('is-active', i % imageCount === index);
     });
   }
 
@@ -147,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     track.classList.remove('manual');
     track.style.transition = '';
     track.style.transform = '';
-    track.style.animation = '';
+    track.style.animation = marqueeAnimationCss;
     Array.from(track.children).forEach((img) => img.classList.remove('is-active'));
   }
 
@@ -157,10 +212,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function step(direction) {
+    if (imageCount <= 1) return;
     if (!manual) {
       enterManualModeNearest();
     } else {
-      currentIndex = (currentIndex + direction + IMAGE_COUNT) % IMAGE_COUNT;
+      currentIndex = (currentIndex + direction + imageCount) % imageCount;
     }
     centerOn(currentIndex);
     scheduleIdleResume();
@@ -169,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Used by clicking an image directly: we already know exactly which
   // image was clicked, so just freeze (if needed) and center on it.
   function focusIndex(index) {
+    if (imageCount <= 1) return;
     freezeTrack();
     centerOn(index);
     scheduleIdleResume();
@@ -176,26 +233,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function openModalFor(card) {
     const title = card.querySelector('h3')?.textContent.trim() || 'Project';
-    const desc = card.querySelector('p')?.textContent.trim() || '';
+    // Cards can optionally include a hidden <p class="full-description">
+    // with a longer write-up — shown here in the popup — while the
+    // visible <p> on the card itself stays short. Falls back to the
+    // short one for cards that don't have a separate full version.
+    const shortDesc = card.querySelector('p')?.textContent.trim() || '';
+    const fullDesc = card.querySelector('.full-description')?.textContent.trim();
+    const desc = fullDesc || shortDesc;
 
     titleEl.textContent = title;
     descEl.textContent = desc;
 
-    // Reset to a clean auto-scrolling state every time the modal opens.
+    // Reset to a clean state every time the modal opens.
     clearTimeout(idleTimer);
     manual = false;
     track.className = 'modal-carousel-track';
     track.style.cssText = '';
-
     track.innerHTML = '';
-    const images = [1, 2, 3, 4].map((n) => makePlaceholderImage(title, n, TONES[n - 1]));
-    // Duplicate the set once so the marquee loops seamlessly.
-    [...images, ...images].forEach((src) => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = `${title} — placeholder screenshot`;
-      track.appendChild(img);
-    });
+
+    const images = getImagesForProject(title);
+    imageCount = images.length;
+
+    if (imageCount <= 1) {
+      // One photo: nothing to scroll or navigate between. Show it
+      // static and centered, and hide the now-pointless ‹ / › buttons.
+      marqueeAnimationCss = 'none';
+      track.style.animation = 'none';
+      track.style.justifyContent = 'center';
+      track.appendChild(createCarouselImage(images[0] || GENERIC_PLACEHOLDER[0], `${title} — screenshot`));
+      if (navControls) navControls.style.display = 'none';
+    } else {
+      // Scale the loop duration so the scroll SPEED (not the time)
+      // stays consistent — a project with more images takes
+      // proportionally longer to complete one full loop, instead of
+      // flying by faster than a smaller set would.
+      const seconds = BASE_MARQUEE_SECONDS * (imageCount / BASE_IMAGE_COUNT);
+      marqueeAnimationCss = `modal-marquee ${seconds}s linear infinite`;
+      track.style.animation = marqueeAnimationCss;
+      if (navControls) navControls.style.display = '';
+      // Duplicate the set once so the marquee loops seamlessly.
+      [...images, ...images].forEach((src) => {
+        track.appendChild(createCarouselImage(src, `${title} — screenshot`));
+      });
+    }
 
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden', 'false');
@@ -238,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const all = Array.from(track.children);
     const rawIndex = all.indexOf(img);
     if (rawIndex === -1) return;
-    focusIndex(rawIndex % IMAGE_COUNT);
+    focusIndex(rawIndex % imageCount);
   });
 
   document.addEventListener('keydown', (e) => {
