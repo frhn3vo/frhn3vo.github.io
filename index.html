@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Muhammad Farhan — Game Developer</title>
+  <title>MUHAMMAD FARHAN — Game Developer</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="css/styles.css" />
   <!-- three.js import map: the scene is loaded once and persists for the
@@ -505,15 +505,15 @@
         <div class="wrap">
           <div class="eyebrow">Inspector — Contact</div>
           <h1>Let's build something</h1>
-          <p>This form is front-end only — wire it to Formspree, Netlify Forms, or your own backend before it can
-            actually send.</p>
+          <p>Fill this in and hit send — it opens your email app with everything pre-filled, addressed directly to me.
+          </p>
         </div>
       </section>
 
       <section id="contact-section">
         <div class="wrap">
           <div class="contact-grid">
-            <form class="reveal" onsubmit="return false;">
+            <form class="reveal" id="contactForm">
               <div class="field">
                 <label for="name">Name</label>
                 <input id="name" type="text" placeholder="Your name" />
@@ -527,15 +527,18 @@
                 <textarea id="message" rows="5" placeholder="Tell me about the project or role..."></textarea>
               </div>
               <button class="btn btn-primary" type="submit">Send message</button>
+              <p id="contactFormStatus" role="status" aria-live="polite"
+                style="margin-top:12px; font-size:0.85rem; color:var(--text-muted);"></p>
+              <p style="margin-top:16px; font-size:0.85rem; color:var(--text-muted);">
+                Prefer to email directly? Reach me at <a href="#" id="contactEmailFallback"
+                  style="color:var(--text); border-bottom:1px solid var(--text-muted);"></a>
+              </p>
             </form>
 
             <div class="contact-side reveal">
               <div class="panel axis-y">
                 <h3>Elsewhere</h3>
-                <p style="margin-bottom:10px;"><a href="#">itch.io/PLACEHOLDER →</a></p>
-                <p style="margin-bottom:10px;"><a href="#">github.com/PLACEHOLDER →</a></p>
-                <p style="margin-bottom:10px;"><a href="#">linkedin.com/in/PLACEHOLDER →</a></p>
-                <p><a href="#">artstation.com/PLACEHOLDER →</a></p>
+                <p style="margin-bottom:10px;"><a href="#">github.com/frhn3vo →</a></p>
               </div>
             </div>
           </div>
@@ -546,7 +549,7 @@
   </main>
 
   <footer>
-    © <span id="year"></span> Muhammad Farhan — built with three.js
+    © <span id="year"></span> MUHAMMAD FARHAN — built with three.js
   </footer>
 
   <!-- ============== PROJECT DETAIL MODAL ============== -->

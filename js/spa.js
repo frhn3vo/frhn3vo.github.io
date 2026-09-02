@@ -11,11 +11,11 @@
 
 const VALID_VIEWS = ['projects', 'skills', 'experience', 'contact']; // 'home' is the implicit default
 const TITLES = {
-  home: 'Muhammad Farhan — Game Developer',
-  projects: 'Projects — Muhammad Farhan',
-  skills: 'Skills — Muhammad Farhan',
-  experience: 'Experience — Muhammad Farhan',
-  contact: 'Contact — Muhammad Farhan',
+  home: 'MUHAMMAD FARHAN — Game Developer',
+  projects: 'Projects — MUHAMMAD FARHAN',
+  skills: 'Skills — MUHAMMAD FARHAN',
+  experience: 'Experience — MUHAMMAD FARHAN',
+  contact: 'Contact — MUHAMMAD FARHAN',
 };
 
 function parseView() {
@@ -146,4 +146,47 @@ if (canvas) {
   setTimeout(markSettled(revealSceneWithFallbackNote), 8000);
 } else {
   revealScene();
+}
+
+// ---- Contact form: no backend, no third-party sign-up — submitting
+// just opens the visitor's own email app with everything pre-filled,
+// addressed straight to you. Change CONTACT_EMAIL if this ever needs
+// to point somewhere else. ----
+const CONTACT_EMAIL = 'farhanevo32@gmail.com';
+const contactForm = document.getElementById('contactForm');
+
+// Always-visible fallback (in case the form's mailto attempt silently
+// fails, e.g. no default email app registered on the visitor's device).
+const contactEmailFallback = document.getElementById('contactEmailFallback');
+if (contactEmailFallback) {
+  contactEmailFallback.href = `mailto:${CONTACT_EMAIL}`;
+  contactEmailFallback.textContent = CONTACT_EMAIL;
+}
+
+if (contactForm) {
+  contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('name')?.value.trim() || '';
+    const email = document.getElementById('email')?.value.trim() || '';
+    const message = document.getElementById('message')?.value.trim() || '';
+    const statusEl = document.getElementById('contactFormStatus');
+
+    if (!message) {
+      if (statusEl) statusEl.textContent = 'Write a message first — the email needs something to send.';
+      return;
+    }
+
+    const subject = encodeURIComponent(`Portfolio contact from ${name || 'a visitor'}`);
+    const bodyLines = [message, ''];
+    if (name) bodyLines.push(`— ${name}`);
+    if (email) bodyLines.push(`(${email})`);
+    const body = encodeURIComponent(bodyLines.join('\n'));
+
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+
+    if (statusEl) {
+      statusEl.textContent = 'Opening your email app with this message pre-filled…';
+    }
+  });
 }
